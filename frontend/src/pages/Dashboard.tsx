@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ResponsiveContainer, 
-  LineChart, 
-  Line, 
   AreaChart,
   Area,
   XAxis, 
@@ -19,16 +17,21 @@ import {
   ArrowUpRight, 
   ChevronRight, 
   Package, 
-  Download,
-  Calendar
+  Calendar,
+  Sliders,
+  AlertTriangle,
+  Zap,
+  DollarSign,
+  ShoppingBag,
+  Users,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { KpiCard } from '../components/common/KpiCard';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { ExportButton } from '../components/common/ExportButton';
 import { useDataset } from '../context/DatasetContext';
 import { 
-  INITIAL_KPIS, 
   DEMO_SALES_TREND, 
   DEMO_CATEGORIES, 
   DEMO_TOP_PRODUCTS 
@@ -38,11 +41,12 @@ import { getCategoryColor } from '../utils/categoryColors';
 import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 
 export const Dashboard: React.FC = () => {
-  const { backendOnline, hasDataset } = useDataset();
+  const { backendOnline, hasDataset, datasetMeta } = useDataset();
   const [salesTrend, setSalesTrend] = useState(DEMO_SALES_TREND);
   const [categories, setCategories] = useState(DEMO_CATEGORIES);
   const [topProducts, setTopProducts] = useState(DEMO_TOP_PRODUCTS);
   const [trendPeriod, setTrendPeriod] = useState<'monthly' | 'weekly'>('monthly');
+  const [dateFilter, setDateFilter] = useState<'30D' | '90D' | 'YTD' | 'All'>('30D');
   const [kpis, setKpis] = useState<any>({
     total_revenue_display: "₹12,84,500",
     total_revenue_growth: "+12.6%",
@@ -80,24 +84,42 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Top Welcome Title & Subtitle */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="space-y-6 pb-12">
+      {/* Top Welcome Title & Subtitle with Date Pills */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
-            Good Morning, Admin! 👋
-          </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Here's your e-commerce performance overview and predictive intelligence.
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+              Executive Overview
+            </h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Live AI Metrics
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Real-time sales telemetry, AI predictions, and inventory velocity across catalog channels.
           </p>
         </div>
 
-        {/* Quick Date Range / Action */}
-        <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface-border bg-white text-[12px] text-text-main font-medium shadow-card">
-            <Calendar className="w-3.5 h-3.5 text-text-muted" />
-            <span>{kpis.date_range || "Jan 2025 – Dec 2025"}</span>
+        {/* Quick Date Range & Export Button */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {/* Quick Filter Pills */}
+          <div className="hidden md:flex items-center gap-1 bg-white border border-slate-200 p-1 rounded-xl shadow-xs text-xs font-semibold text-slate-600">
+            {(['30D', '90D', 'YTD', 'All'] as const).map(pill => (
+              <button
+                key={pill}
+                onClick={() => setDateFilter(pill)}
+                className={`px-2.5 py-1 rounded-lg transition-all ${
+                  dateFilter === pill 
+                    ? 'bg-slate-900 text-white shadow-xs' 
+                    : 'hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                {pill}
+              </button>
+            ))}
           </div>
+
           <ExportButton
             title="Dashboard Overview"
             data={salesTrend}
@@ -106,73 +128,138 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          title="Total Revenue"
-          value={kpis.total_revenue_display || "₹12,84,500"}
-          change={kpis.total_revenue_growth || "+12.6%"}
-          isPositive={true}
-          comparisonText="vs prior period"
-          icon="DollarSign"
-        />
-        <KpiCard
-          title="Total Orders"
-          value={formatNumber(kpis.total_orders, 18450)}
-          change={kpis.total_orders_growth || "+8.2%"}
-          isPositive={true}
-          comparisonText="volume velocity"
-          icon="ShoppingBag"
-        />
-        <KpiCard
-          title="Total Customers"
-          value={formatNumber(kpis.total_customers, 2450)}
-          change={kpis.total_customers_growth || "+7.4%"}
-          isPositive={true}
-          comparisonText="active shoppers"
-          icon="Users"
-        />
-        <KpiCard
-          title="Average Order Value"
-          value={kpis.aov_display || "₹695"}
-          change="+4.1%"
-          isPositive={true}
-          comparisonText="basket size"
-          icon="Package"
-        />
+      {/* AI Morning Briefing Card */}
+      <div className="bento-card p-4 sm:p-5 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-0 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-blue-500/30 text-blue-200 border border-blue-400/30">
+              <Sparkles className="w-3 h-3 text-cyan-300" />
+              Automated AI Executive Briefing
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-white">
+              Revenue pacing +12.6% ahead of benchmark with strong Electronics momentum.
+            </h3>
+            <p className="text-xs text-slate-300">
+              ⚡ <strong>3 Actions:</strong> Run What-If simulation for upcoming promotions, reorder 3 low-stock SKUs in Footwear, and activate Market Basket bundles on checkout.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Link
+              to="/what-if-simulator"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-blue-50 transition-all shadow-md"
+            >
+              <Sliders className="w-3.5 h-3.5 text-blue-600" />
+              Launch What-If Sandbox
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Middle Row: Sales Overview (Line Chart) + Top Categories (Donut) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Sales Overview (2 cols on desktop) */}
-        <div className="lg:col-span-2 dashboard-card p-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+      {/* Bento Grid: 4 Core KPIs with Sparklines */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Revenue */}
+        <div className="bento-card p-5 bg-white border border-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Net Revenue</span>
+            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+              <DollarSign className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-black text-slate-900 mt-2">{kpis.total_revenue_display || "₹12,84,500"}</p>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+              <ArrowUpRight className="w-3.5 h-3.5" /> {kpis.total_revenue_growth || "+12.6%"}
+            </span>
+            <span className="text-slate-400 text-[11px]">vs last period</span>
+          </div>
+        </div>
+
+        {/* KPI 2: Total Orders */}
+        <div className="bento-card p-5 bg-white border border-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order Volume</span>
+            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-black text-slate-900 mt-2">{formatNumber(kpis.total_orders, 18450)}</p>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+              <ArrowUpRight className="w-3.5 h-3.5" /> {kpis.total_orders_growth || "+8.2%"}
+            </span>
+            <span className="text-slate-400 text-[11px]">fulfillment rate 99.1%</span>
+          </div>
+        </div>
+
+        {/* KPI 3: Active Customers */}
+        <div className="bento-card p-5 bg-white border border-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Customers</span>
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-black text-slate-900 mt-2">{formatNumber(kpis.total_customers, 2450)}</p>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+              <ArrowUpRight className="w-3.5 h-3.5" /> {kpis.total_customers_growth || "+7.4%"}
+            </span>
+            <span className="text-slate-400 text-[11px]">68% repeat rate</span>
+          </div>
+        </div>
+
+        {/* KPI 4: AOV */}
+        <div className="bento-card p-5 bg-white border border-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Average Basket (AOV)</span>
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+              <Layers className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-black text-slate-900 mt-2">{kpis.aov_display || "₹695"}</p>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs">
+            <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+              <ArrowUpRight className="w-3.5 h-3.5" /> +4.1%
+            </span>
+            <span className="text-slate-400 text-[11px]">2.4 items / cart</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Middle Row: Sales Area Trajectory (2 Cols) + Category Donut (1 Col) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sales Overview with Gradient Area Chart */}
+        <div className="lg:col-span-2 bento-card p-5 bg-white border border-slate-200 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-[15px] font-semibold text-text-main">
-                Sales Overview
+              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                Sales Trajectory & Momentum
               </h2>
-              <p className="text-[11px] text-text-muted">
-                Revenue trajectory over time with order volume correlation
+              <p className="text-xs text-slate-400 mt-0.5">
+                Gross revenue timeline plotted with seasonality confidence band
               </p>
             </div>
 
-            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px] font-medium">
+            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-semibold">
               <button
                 onClick={() => setTrendPeriod('monthly')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${
+                className={`px-3 py-1 rounded-md transition-all ${
                   trendPeriod === 'monthly'
-                    ? 'bg-white text-text-main shadow-xs font-semibold'
-                    : 'text-text-muted hover:text-text-main'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setTrendPeriod('weekly')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${
+                className={`px-3 py-1 rounded-md transition-all ${
                   trendPeriod === 'weekly'
-                    ? 'bg-white text-text-main shadow-xs font-semibold'
-                    : 'text-text-muted hover:text-text-main'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Weekly
@@ -180,57 +267,64 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="h-[250px] w-full pt-2">
+          <div className="h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={salesTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+              <AreaChart data={salesTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563EB" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                 <XAxis 
                   dataKey="period" 
-                  tick={{ fontSize: 11, fill: '#6B7C93' }} 
-                  axisLine={{ stroke: '#DCE5EF' }}
+                  tick={{ fontSize: 11, fill: '#64748B' }} 
+                  axisLine={{ stroke: '#E2E8F0' }}
                   tickLine={false}
                 />
                 <YAxis 
-                  tick={{ fontSize: 11, fill: '#6B7C93' }} 
+                  tick={{ fontSize: 11, fill: '#64748B' }} 
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`}
                 />
                 <Tooltip 
                   contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #DCE5EF',
-                    borderRadius: '8px',
+                    backgroundColor: '#0F172A',
+                    borderColor: '#1E293B',
+                    borderRadius: '10px',
                     fontSize: '12px',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.06)'
+                    color: '#F8FAFC'
                   }}
-                  formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, 'Sales']}
+                  itemStyle={{ color: '#F8FAFC' }}
+                  formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, 'Net Revenue']}
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="sales"
-                  stroke="#1769E0"
+                  stroke="#2563EB"
                   strokeWidth={2.5}
-                  dot={{ r: 3, fill: '#1769E0', strokeWidth: 1, stroke: '#FFFFFF' }}
-                  activeDot={{ r: 5, fill: '#1769E0' }}
+                  fillOpacity={1}
+                  fill="url(#revenueGradient)"
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Top Categories (Donut) */}
-        <div className="dashboard-card p-4 flex flex-col justify-between">
+        {/* Top Categories Donut */}
+        <div className="bento-card p-5 bg-white border border-slate-200 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[15px] font-semibold text-text-main">
-              Top Categories
+            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+              Category Distribution
             </h2>
             <Link 
               to="/sales-analysis" 
-              className="text-[11px] font-medium text-primary hover:underline flex items-center gap-0.5"
+              className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-0.5"
             >
               Details
-              <ChevronRight className="w-3 h-3" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -239,8 +333,8 @@ export const Dashboard: React.FC = () => {
               <PieChart>
                 <Pie
                   data={categories}
-                  innerRadius={50}
-                  outerRadius={75}
+                  innerRadius={52}
+                  outerRadius={76}
                   paddingAngle={3}
                   dataKey="percentage"
                 >
@@ -251,24 +345,26 @@ export const Dashboard: React.FC = () => {
                 <Tooltip
                   formatter={(val: any, name: any) => [`${val}%`, name]}
                   contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #DCE5EF',
+                    backgroundColor: '#0F172A',
+                    borderColor: '#1E293B',
                     borderRadius: '8px',
-                    fontSize: '11px'
+                    fontSize: '11px',
+                    color: '#F8FAFC'
                   }}
+                  itemStyle={{ color: '#F8FAFC' }}
                 />
               </PieChart>
             </ResponsiveContainer>
-            {/* Centered label */}
+            {/* Center Callout */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-[10px] text-text-muted font-medium">Leading</span>
-              <span className="text-[13px] font-bold text-text-main">37.5%</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Leading</span>
+              <span className="text-sm font-black text-slate-900">37.5%</span>
             </div>
           </div>
 
-          {/* Category Legends with Distinct Colors */}
-          <div className="space-y-1.5 pt-2 border-t border-slate-100 text-[12px]">
-            {categories.map((cat, idx) => {
+          {/* Category Chips */}
+          <div className="space-y-1.5 pt-3 border-t border-slate-100 text-xs">
+            {categories.slice(0, 4).map((cat, idx) => {
               const chipColor = getCategoryColor(cat.name, idx, cat.color);
               return (
                 <div key={idx} className="flex items-center justify-between">
@@ -277,9 +373,9 @@ export const Dashboard: React.FC = () => {
                       className="w-2.5 h-2.5 rounded-sm flex-shrink-0" 
                       style={{ backgroundColor: chipColor }} 
                     />
-                    <span className="text-text-main font-medium">{cat.name}</span>
+                    <span className="text-slate-700 font-medium">{cat.name}</span>
                   </div>
-                  <span className="text-text-muted font-semibold">{cat.percentage}%</span>
+                  <span className="text-slate-900 font-bold">{cat.percentage}%</span>
                 </div>
               );
             })}
@@ -287,25 +383,25 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Row: Top Selling Products (Table) + Next Month Sales Prediction */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Bottom Row: Top Selling SKU Performance Table + Predictive Forward Callout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Selling Products (2 cols) */}
-        <div className="lg:col-span-2 dashboard-card p-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="lg:col-span-2 bento-card p-5 bg-white border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-[15px] font-semibold text-text-main">
-                Top Selling Products
+              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                Hero SKU Performance
               </h2>
-              <p className="text-[11px] text-text-muted">
-                Best performing catalog inventory by gross revenue and trend
+              <p className="text-xs text-slate-400 mt-0.5">
+                Top grossing products ranked by sales velocity and unit movement
               </p>
             </div>
             <Link
-              to="/product-demand"
-              className="text-[11px] font-medium text-primary hover:underline flex items-center gap-0.5"
+              to="/product-intelligence"
+              className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-0.5"
             >
-              All Products
-              <ChevronRight className="w-3 h-3" />
+              Product Intelligence Hub
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -313,29 +409,31 @@ export const Dashboard: React.FC = () => {
             <table className="w-full text-left data-table">
               <thead>
                 <tr>
-                  <th>Product</th>
+                  <th>Product SKU</th>
                   <th>Category</th>
-                  <th>Revenue</th>
-                  <th>Units</th>
-                  <th>Trend</th>
+                  <th className="text-right">Revenue</th>
+                  <th className="text-right">Units</th>
+                  <th className="text-right">Velocity</th>
                 </tr>
               </thead>
               <tbody>
                 {topProducts.map((p) => (
                   <tr key={p.id}>
-                    <td className="font-medium text-text-main flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-primary flex-shrink-0">
+                    <td className="font-semibold text-slate-800 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-blue-600 flex-shrink-0">
                         <Package className="w-3.5 h-3.5" />
                       </div>
-                      <span className="truncate max-w-[150px]">{p.name}</span>
+                      <span className="truncate max-w-[160px]">{p.name}</span>
                     </td>
                     <td>
-                      <StatusBadge variant="gray">{p.category}</StatusBadge>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+                        {p.category}
+                      </span>
                     </td>
-                    <td className="font-semibold text-text-main">{p.salesDisplay}</td>
-                    <td className="text-text-muted">{p.quantity} units</td>
-                    <td>
-                      <span className="inline-flex items-center gap-0.5 text-brand-green font-medium text-[11px]">
+                    <td className="text-right font-bold text-slate-900">{p.salesDisplay}</td>
+                    <td className="text-right text-slate-600">{p.quantity} units</td>
+                    <td className="text-right">
+                      <span className="inline-flex items-center gap-0.5 text-emerald-600 font-bold text-xs">
                         <TrendingUp className="w-3 h-3" />
                         {p.trend}
                       </span>
@@ -347,119 +445,52 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Next Month Sales Prediction Card (Enriched with Sparkline & Forward Projections) */}
-        <div className="dashboard-card p-5 flex flex-col justify-between bg-gradient-to-br from-white via-slate-50/50 to-indigo-50/20 border-primary/20 shadow-xs">
+        {/* Next Month Predictive Callout Card */}
+        <div className="bento-card p-5 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40 border border-blue-200/60 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-purpleLight text-brand-purple border border-brand-purple/20">
+            <div className="flex items-center justify-between mb-3">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 border border-indigo-200">
                 <Sparkles className="w-3 h-3" />
-                ML FORECAST
+                ML Prediction
               </span>
-              <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium border border-emerald-200">
-                Confidence 94.2%
+              <span className="text-[11px] text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full font-bold">
+                94.2% Confidence
               </span>
             </div>
 
-            <h3 className="text-[14px] font-medium text-text-muted mt-2">
-              Next Month Sales Prediction
+            <h3 className="text-sm font-bold text-slate-800">
+              Projected Next-Month Run Rate
             </h3>
-
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-[26px] font-bold text-text-main tracking-tight">
-                ₹15,24,800
-              </span>
-              <span className="inline-flex items-center gap-0.5 text-brand-green font-semibold text-[12px]">
-                <ArrowUpRight className="w-3.5 h-3.5" />
-                +18.7% growth
-              </span>
-            </div>
-
-            {/* Mini Forward Trajectory Area Sparkline */}
-            <div className="h-[95px] w-full mt-3 pt-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={[
-                    { month: "Sep", sales: 118000 },
-                    { month: "Oct", sales: 126000 },
-                    { month: "Nov", sales: 134000 },
-                    { month: "Dec", sales: 142000 },
-                    { month: "Projected", sales: 168500 }
-                  ]}
-                  margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#E2E8F0" />
-                  <XAxis dataKey="month" tick={{ fontSize: 9.5, fill: '#64748B' }} axisLine={false} />
-                  <YAxis tick={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#FFFFFF',
-                      border: '1px solid #E2E8F0',
-                      borderRadius: '8px',
-                      fontSize: '11px',
-                      padding: '4px 8px'
-                    }}
-                    formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, 'Forecast']}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="sales"
-                    stroke="#8B5CF6"
-                    strokeWidth={2.2}
-                    fillOpacity={1}
-                    fill="url(#forecastGrad)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Forward Projection Metrics Grid */}
-            <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100">
-              <div className="p-2 rounded-lg bg-slate-50/80 border border-slate-100">
-                <span className="text-[10px] text-text-muted uppercase font-medium block">Expected Orders</span>
-                <span className="text-[13px] font-bold text-text-main">1,284</span>
-                <span className="text-[10px] text-brand-green font-medium ml-1">+8.2%</span>
-              </div>
-
-              <div className="p-2 rounded-lg bg-slate-50/80 border border-slate-100">
-                <span className="text-[10px] text-text-muted uppercase font-medium block">Projected AOV</span>
-                <span className="text-[13px] font-bold text-text-main">₹1,187</span>
-                <span className="text-[10px] text-brand-green font-medium ml-1">+4.1%</span>
-              </div>
-
-              <div className="p-2 rounded-lg bg-slate-50/80 border border-slate-100">
-                <span className="text-[10px] text-text-muted uppercase font-medium block">95% Range</span>
-                <span className="text-[12px] font-semibold text-text-main">₹14.2L – ₹16.4L</span>
-              </div>
-
-              <div className="p-2 rounded-lg bg-slate-50/80 border border-slate-100">
-                <span className="text-[10px] text-text-muted uppercase font-medium block">Error Bound</span>
-                <span className="text-[12px] font-semibold text-text-main">MAE ₹12,450</span>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-text-muted mt-3 leading-relaxed">
-              Trained on historical seasonality, multi-order volume velocity, and holiday purchase patterns.
+            <p className="text-2xl font-black text-blue-600 mt-2">
+              ₹14,48,000
             </p>
+            <p className="text-xs text-slate-500 mt-1">
+              +12.7% expected acceleration driven by festival shopping surge.
+            </p>
+
+            <div className="mt-4 p-3 rounded-xl bg-white/90 border border-slate-200/80 space-y-2 text-xs">
+              <div className="flex justify-between text-slate-600">
+                <span>Predicted Units:</span>
+                <span className="font-bold text-slate-900">20,800 units</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Top Growth Category:</span>
+                <span className="font-bold text-blue-600">Electronics (+18.4%)</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Recommended Buffer:</span>
+                <span className="font-bold text-amber-600">+15% safety stock</span>
+              </div>
+            </div>
           </div>
 
-          {/* Mini Prediction Trajectory Footer */}
-          <div className="pt-3 border-t border-slate-200/70 mt-3">
-            <div className="flex items-center justify-between text-[11px] text-text-muted mb-2">
-              <span>Target Model: Random Forest Regressor</span>
-              <span className="font-semibold text-primary">R² = 0.91</span>
-            </div>
+          <div className="pt-4">
             <Link
               to="/prediction"
-              className="w-full py-2 px-3 bg-primary hover:bg-primary-hover text-white text-[12px] font-semibold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
             >
-              <span>Explore Predictive Model</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <span>Explore Predictive Engine</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

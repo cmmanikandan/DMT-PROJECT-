@@ -21,6 +21,8 @@ import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { InventoryAlerts } from './pages/InventoryAlerts';
 import { AnomalyDetection } from './pages/AnomalyDetection';
+import { WhatIfSimulator } from './pages/WhatIfSimulator';
+import { ProductIntelligence } from './pages/ProductIntelligence';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -86,10 +88,26 @@ export const AppContent: React.FC = () => {
             } 
           />
           <Route 
+            path="what-if-simulator" 
+            element={
+              <ErrorBoundary fallbackTitle="What-If Scenario Simulator Error">
+                <WhatIfSimulator />
+              </ErrorBoundary>
+            } 
+          />
+          <Route 
+            path="product-intelligence" 
+            element={
+              <ErrorBoundary fallbackTitle="Product Intelligence Error">
+                <ProductIntelligence />
+              </ErrorBoundary>
+            } 
+          />
+          <Route 
             path="product-demand" 
             element={
               <ErrorBoundary fallbackTitle="Product Demand Error">
-                <ProductDemand />
+                <ProductIntelligence />
               </ErrorBoundary>
             } 
           />
@@ -97,7 +115,7 @@ export const AppContent: React.FC = () => {
             path="product-analysis" 
             element={
               <ErrorBoundary fallbackTitle="Product Analysis Error">
-                <ProductDemand />
+                <ProductIntelligence />
               </ErrorBoundary>
             } 
           />
@@ -137,7 +155,7 @@ export const AppContent: React.FC = () => {
             path="product-performance" 
             element={
               <ErrorBoundary fallbackTitle="Product Performance Error">
-                <ProductPerformance />
+                <ProductIntelligence />
               </ErrorBoundary>
             } 
           />

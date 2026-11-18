@@ -401,6 +401,112 @@ class AIQueryRequest(BaseModel):
 def run_ai_assistant_query(req: AIQueryRequest):
     return process_ai_query(req.query, CURRENT_DATASET)
 
+class WhatIfRequest(BaseModel):
+    discount_pct: float = 10.0
+    price_change_pct: float = 0.0
+    marketing_multiplier: float = 1.0
+    festival_mode: bool = False
+    category: str = "All"
+
+@app.post("/api/simulation/what-if")
+def simulate_scenario(req: WhatIfRequest):
+    if CURRENT_DATASET is None:
+        raise HTTPException(status_code=404, detail="No dataset uploaded yet.")
+    
+    df = CURRENT_DATASET.copy()
+    if req.category != "All" and "Category" in df.columns:
+        df = df[df["Category"] == req.category]
+        if df.empty:
+            df = CURRENT_DATASET.copy()
+
+    total_amount_col = "Total_Amount" if "Total_Amount" in df.columns else ("Sales" if "Sales" in df.columns else None)
+    qty_col = "Quantity" if "Quantity" in df.columns else None
+    
+    baseline_revenue = float(df[total_amount_col].sum()) if total_amount_col else 100000.0
+    baseline_units = int(df[qty_col].sum()) if qty_col else 1500
+    baseline_orders = len(df)
+    baseline_aov = baseline_revenue / max(1, baseline_orders)
+
+    # Price Elasticity: E-commerce average PED is -1.4 (elastic demand)
+    elasticity = -1.4
+    net_price_effect_pct = (req.price_change_pct - req.discount_pct) / 100.0
+    qty_elasticity_pct = elasticity * net_price_effect_pct
+
+    # Marketing diminishing returns model
+    marketing_factor = max(0.1, req.marketing_multiplier)
+    mktg_uplift_pct = (marketing_factor ** 0.4 - 1.0)
+
+    # Festival effect
+    festival_uplift_pct = 0.35 if req.festival_mode else 0.0
+
+    # Combined quantity factor
+    simulated_qty_multiplier = max(0.2, 1.0 + qty_elasticity_pct + mktg_uplift_pct + festival_uplift_pct)
+    simulated_units = int(baseline_units * simulated_qty_multiplier)
+
+    # Price per unit factor
+    simulated_price_multiplier = max(0.4, (1.0 + (req.price_change_pct / 100.0)) * (1.0 - (req.discount_pct / 100.0)))
+    simulated_revenue = float(baseline_revenue * simulated_qty_multiplier * simulated_price_multiplier)
+    
+    # Estimated Gross Margin (assuming 55% average baseline COGS + ad spend scaling)
+    cogs_pct = 0.48
+    base_gross_profit = baseline_revenue * (1.0 - cogs_pct)
+    ad_spend_cost = (req.marketing_multiplier - 1.0) * 0.08 * baseline_revenue if req.marketing_multiplier > 1.0 else 0.0
+    simulated_gross_profit = max(0.0, (simulated_revenue * (1.0 - cogs_pct)) - ad_spend_cost)
+    
+    simulated_margin_pct = (simulated_gross_profit / max(1.0, simulated_revenue)) * 100.0
+    baseline_margin_pct = (base_gross_profit / max(1.0, baseline_revenue)) * 100.0
+
+    # Category projection if category col exists
+    categories_breakdown = []
+    if "Category" in CURRENT_DATASET.columns:
+        cat_group = CURRENT_DATASET.groupby("Category")[total_amount_col].sum().reset_index()
+        for _, row in cat_group.iterrows():
+            c_name = str(row["Category"])
+            c_base = float(row[total_amount_col])
+            c_sim = float(c_base * simulated_qty_multiplier * simulated_price_multiplier)
+            categories_breakdown.append({
+                "category": c_name,
+                "baseline_revenue": round(c_base, 2),
+                "simulated_revenue": round(c_sim, 2),
+                "growth_pct": round(((c_sim - c_base) / max(1.0, c_base)) * 100.0, 1)
+            })
+
+    # AI Recommendation
+    rev_change_pct = ((simulated_revenue - baseline_revenue) / max(1.0, baseline_revenue)) * 100.0
+    if rev_change_pct > 15 and simulated_margin_pct >= 40:
+        recommendation = "Highly Favorable Scenario: Strong top-line growth with healthy margin protection."
+        status = "optimal"
+    elif rev_change_pct > 0 and simulated_margin_pct < 35:
+        recommendation = "Margin Compression Risk: Revenue increases, but steep discounts or high marketing costs erode profit."
+        status = "warning"
+    elif rev_change_pct <= 0:
+        recommendation = "Suboptimal Scenario: Price hike or reduced marketing suppresses consumer demand below break-even."
+        status = "critical"
+    else:
+        recommendation = "Balanced Scenario: Moderate demand expansion with stable operating profit."
+        status = "neutral"
+
+    return {
+        "status": status,
+        "recommendation": recommendation,
+        "baseline": {
+            "revenue": round(baseline_revenue, 2),
+            "units": baseline_units,
+            "gross_profit": round(base_gross_profit, 2),
+            "margin_pct": round(baseline_margin_pct, 1),
+            "aov": round(baseline_aov, 2)
+        },
+        "simulated": {
+            "revenue": round(simulated_revenue, 2),
+            "units": simulated_units,
+            "gross_profit": round(simulated_gross_profit, 2),
+            "margin_pct": round(simulated_margin_pct, 1),
+            "revenue_growth_pct": round(rev_change_pct, 1),
+            "unit_growth_pct": round(((simulated_units - baseline_units) / max(1, baseline_units)) * 100.0, 1)
+        },
+        "category_breakdown": categories_breakdown
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

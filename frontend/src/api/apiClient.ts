@@ -179,4 +179,22 @@ export async function askAIAssistant(query: string): Promise<any> {
   return await res.json();
 }
 
+export async function fetchWhatIfSimulation(params: {
+  discount_pct: number;
+  price_change_pct: number;
+  marketing_multiplier: number;
+  festival_mode: boolean;
+  category: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/simulation/what-if`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    throw new Error(`What-If simulation failed with status ${res.status}`);
+  }
+  return await res.json();
+}
+
 

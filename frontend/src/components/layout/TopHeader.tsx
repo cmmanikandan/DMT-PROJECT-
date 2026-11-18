@@ -16,9 +16,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface TopHeaderProps {
   onToggleMobileSidebar: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
-export const TopHeader: React.FC<TopHeaderProps> = ({ onToggleMobileSidebar }) => {
+export const TopHeader: React.FC<TopHeaderProps> = ({ onToggleMobileSidebar, onOpenCommandPalette }) => {
   const { user, logout } = useAuth();
   const { backendOnline, dbStatus, datasetMeta, checkStatus } = useDataset();
   const { showToast } = useToast();
@@ -58,13 +59,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onToggleMobileSidebar }) =
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="relative w-full max-w-xs">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-light" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-9 pr-3 py-1.5 text-[13px] bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-surface-border rounded-lg text-text-main placeholder-text-light focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none"
-          />
+        <div 
+          onClick={onOpenCommandPalette}
+          className="relative w-full max-w-xs cursor-pointer group"
+        >
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-500 transition-colors" />
+          <div className="w-full pl-9 pr-12 py-1.5 text-[12.5px] bg-slate-100/80 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 flex items-center justify-between transition-all">
+            <span>Quick search or jump to...</span>
+            <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded shadow-xs">
+              ⌘K
+            </kbd>
+          </div>
         </div>
       </div>
 
