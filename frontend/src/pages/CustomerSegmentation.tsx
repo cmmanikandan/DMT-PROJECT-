@@ -82,9 +82,6 @@ export const CustomerSegmentation: React.FC = () => {
           <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
             Customer Segmentation
           </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Customer Clusters (K-Means) — Unsupervised grouping based on Recency, Frequency, and Monetary (RFM) vectors.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

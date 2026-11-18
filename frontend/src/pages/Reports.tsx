@@ -80,91 +80,101 @@ export const Reports: React.FC = () => {
   const reportCards = [
     {
       id: "sales",
-      title: "Sales Report",
-      description: "View detailed sales report with monthly trajectory, order volumes, and revenue breakdown.",
+      title: "Comprehensive Sales Report",
+      description: "Monthly revenue trajectory, order volume velocity, average basket sizes, and department breakdown.",
       icon: TrendingUp,
-      color: "text-primary bg-primary-light",
+      color: "text-blue-600 bg-blue-50 border border-blue-200",
+      badge: "Financial Audit",
+      dataPoints: `${DEMO_SALES_TREND.length} Monthly Periods`,
       data: DEMO_SALES_TREND,
       pdfTitle: "ECOMSIGHT Comprehensive Sales Report"
     },
     {
       id: "prediction",
-      title: "Prediction Report",
-      description: "Download sales prediction results, forward forecast confidence bounds, and regression model evaluation metrics (MAE, RMSE, R²).",
+      title: "Predictive Forecasting Report",
+      description: "Forward demand forecast confidence bounds, regression model evaluation (MAE, RMSE, R²), and trend outlook.",
       icon: Sparkles,
-      color: "text-brand-purple bg-brand-purpleLight",
+      color: "text-purple-600 bg-purple-50 border border-purple-200",
+      badge: "ML Evaluation",
+      dataPoints: "Next 30D Forecast",
       data: DEMO_PREDICTION_CHART,
       pdfTitle: "ECOMSIGHT Predictive Sales Forecasting Report"
     },
     {
       id: "customer",
-      title: "Customer Report",
-      description: "Comprehensive customer RFM clustering data, recency scores, frequency distribution, and monetary segment profiles.",
+      title: "Customer RFM Segmentation",
+      description: "Customer RFM clustering profiles: Champions, Loyal Shoppers, At-Risk Accounts, and Lost Shoppers.",
       icon: Users,
-      color: "text-brand-green bg-brand-greenLight",
+      color: "text-emerald-600 bg-emerald-50 border border-emerald-200",
+      badge: "K-Means Clusters",
+      dataPoints: `${datasetMeta.rows.toLocaleString()} Transactions`,
       data: DEMO_CUSTOMER_DETAILS,
       pdfTitle: "ECOMSIGHT Customer Segmentation & RFM Report"
     },
     {
       id: "product",
-      title: "Product Report",
-      description: "Catalog demand classification, projected inventory requirements, current sales vs predicted units, and margin health.",
+      title: "Product Inventory & Demand",
+      description: "Catalog demand classification, projected inventory requirements, current sales vs predicted units.",
       icon: Package,
-      color: "text-brand-amber bg-brand-amberLight",
+      color: "text-amber-600 bg-amber-50 border border-amber-200",
+      badge: "Safety Stock",
+      dataPoints: "SKU Catalog Breakdown",
       data: DEMO_DEMAND_PRODUCTS,
       pdfTitle: "ECOMSIGHT Product Inventory & Demand Report"
     },
     {
       id: "association",
-      title: "Association Rules Report",
-      description: "Apriori market basket mining findings, frequent item pairs, support percentages, confidence scores, and lift metrics.",
+      title: "Apriori Market Basket Rules",
+      description: "Product affinity mining pairs, support percentages, confidence scores, and lift metrics for bundling.",
       icon: ShoppingBag,
-      color: "text-indigo-600 bg-indigo-50",
+      color: "text-indigo-600 bg-indigo-50 border border-indigo-200",
+      badge: "Affinity Mining",
+      dataPoints: "Cross-Sell Bundles",
       data: DEMO_ASSOCIATION_RULES,
       pdfTitle: "ECOMSIGHT Apriori Market Basket Association Rules"
     }
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 pb-12">
       {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
             Reports & Analytical Exports
           </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Download print-ready analytical reports, raw spreadsheets, and data mining audit summaries with brand identity.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadMasterPDF}
             disabled={isGeneratingMaster}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-navy-900 hover:bg-navy-850 text-white text-[12px] font-medium shadow-md transition-all border border-navy-800 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition-all border border-slate-700 disabled:opacity-50"
           >
             <FileCheck className="w-4 h-4 text-cyan-400" />
-            <span>{isGeneratingMaster ? 'Generating Branded PDF...' : 'Download Master Executive Audit PDF'}</span>
+            <span>{isGeneratingMaster ? 'Generating Master PDF...' : 'Download Master Executive Audit PDF'}</span>
           </button>
         </div>
       </div>
 
       {/* Branded Executive Callout Banner */}
-      <div className="bg-navy-950 bg-gradient-to-r from-navy-950 via-navy-900 to-navy-950 text-white rounded-xl p-5 border border-navy-800 shadow-lg relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div 
+        className="bento-card p-6 rounded-2xl border border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4"
+        style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}
+      >
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 p-2 flex items-center justify-center shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-2.5 flex items-center justify-center shrink-0">
             <img src="/LOGO.png" alt="EcomSight Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-semibold tracking-wider uppercase mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-extrabold tracking-wider uppercase mb-1">
               Publication-Grade PDF Engine
             </div>
-            <h2 className="text-[16px] font-bold text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
               Executive PDF Report Suite with ECOMSIGHT AI Brand Identity
             </h2>
-            <p className="text-[12px] text-slate-300 mt-0.5 max-w-xl">
-              All PDF exports include official brand typography, active dataset metadata (<span className="text-cyan-300 font-medium">{datasetMeta.filename}</span> with {datasetMeta.rows.toLocaleString()} records), executive metric cards, and clean pagination.
+            <p className="text-xs text-slate-300 mt-1 max-w-xl">
+              All PDF exports include official brand typography, active dataset metadata (<span className="text-cyan-300 font-semibold">{datasetMeta.filename}</span> with {datasetMeta.rows.toLocaleString()} records), executive metric cards, and clean pagination.
             </p>
           </div>
         </div>
@@ -172,42 +182,44 @@ export const Reports: React.FC = () => {
         <button
           onClick={handleDownloadMasterPDF}
           disabled={isGeneratingMaster}
-          className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-[13px] transition-all shadow-md shrink-0"
+          className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs transition-all shadow-md shrink-0"
         >
           <Download className="w-4 h-4" />
           <span>Export Full Audit PDF</span>
         </button>
       </div>
 
-      {/* Report Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Enhanced Report Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {reportCards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.id}
-              className="dashboard-card p-5 flex flex-col justify-between hover:border-primary/40 transition-all shadow-xs"
+              className="bento-card p-5 bg-white border border-slate-200 flex flex-col justify-between hover:border-blue-400 transition-all shadow-card hover:shadow-card-hover rounded-2xl"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${card.color}`}>
-                    <Icon className="w-4 h-4" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.color}`}>
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-medium text-text-light uppercase tracking-wider">
-                    Format: PDF / XLSX
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                    {card.badge}
                   </span>
                 </div>
 
-                <h3 className="text-[15px] font-semibold text-text-main">
+                <h3 className="text-sm font-bold text-slate-900">
                   {card.title}
                 </h3>
-                <p className="text-[12px] text-text-muted mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
                   {card.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between">
-                <span className="text-[11px] text-text-muted">Instant Export</span>
+              <div className="pt-4 border-t border-slate-100 mt-5 flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-400">
+                  {card.dataPoints}
+                </span>
                 <ExportButton
                   title={card.title}
                   data={card.data}

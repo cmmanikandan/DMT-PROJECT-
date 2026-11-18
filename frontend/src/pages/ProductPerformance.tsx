@@ -95,9 +95,6 @@ export const ProductPerformance: React.FC = () => {
           <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
             Product Performance
           </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Granular SKU performance tracking across revenue contribution, units sold, and margin velocity.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

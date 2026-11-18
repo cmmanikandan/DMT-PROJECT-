@@ -148,9 +148,6 @@ export const SalesPrediction: React.FC = () => {
               PRIMARY ML ENGINE
             </span>
           </div>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Train regression algorithms on sales history to forecast demand and evaluate model performance.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

@@ -50,9 +50,6 @@ export const Preprocessing: React.FC = () => {
           <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
             Data Preprocessing
           </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Data mining pipeline: cleaning, anomaly detection, deduplication, and feature engineering.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

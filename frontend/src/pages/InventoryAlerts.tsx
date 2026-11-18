@@ -176,9 +176,6 @@ export const InventoryAlerts: React.FC = () => {
               {inventoryData.kpis.critical_stock_count} Critical
             </span>
           </div>
-          <p className="text-[13px] text-slate-500 mt-1">
-            Automated Reorder Point (ROP) calculation, safety stock buffers, and stockout risk forecasting.
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5">

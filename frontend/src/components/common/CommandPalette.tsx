@@ -52,15 +52,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       badge: 'Overview'
     },
     {
-      id: 'what-if',
-      category: 'Actions',
-      title: 'What-If Scenario Simulator',
-      subtitle: 'Simulate price elasticity, discounts, and marketing campaign uplift',
-      icon: Sliders,
-      path: '/what-if-simulator',
-      badge: 'New AI'
-    },
-    {
       id: 'prediction',
       category: 'Analytics',
       title: 'Sales Prediction Engine',
@@ -70,13 +61,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       badge: 'ML Model'
     },
     {
-      id: 'product-intelligence',
+      id: 'product-analysis',
       category: 'Navigation',
-      title: 'Product Intelligence Center',
-      subtitle: 'Unified demand forecasts, SKU velocity & reorder thresholds',
+      title: 'Product Analysis',
+      subtitle: 'Demand forecasts, SKU velocity & reorder thresholds',
       icon: Package,
-      path: '/product-intelligence',
-      badge: 'Unified'
+      path: '/product-analysis'
     },
     {
       id: 'customer-segmentation',

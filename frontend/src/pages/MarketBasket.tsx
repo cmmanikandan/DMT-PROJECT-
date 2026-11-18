@@ -58,9 +58,6 @@ export const MarketBasket: React.FC = () => {
           <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
             Market Basket Analysis
           </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Apriori Association Mining — Discover frequent co-occurring product combinations to optimize bundles and checkout cross-sells.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

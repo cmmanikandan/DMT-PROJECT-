@@ -85,7 +85,7 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Welcome Title & Subtitle with Date Pills */}
+      {/* Top Welcome Title with Date Pills */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -96,9 +96,6 @@ export const Dashboard: React.FC = () => {
               Live AI Metrics
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Real-time sales telemetry, AI predictions, and inventory velocity across catalog channels.
-          </p>
         </div>
 
         {/* Quick Date Range & Export Button */}
@@ -128,31 +125,32 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Morning Briefing Card */}
-      <div className="bento-card p-4 sm:p-5 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-0 shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        
+      {/* AI Morning Briefing Card (High-Contrast Guaranteed) */}
+      <div 
+        className="bento-card p-5 rounded-2xl border border-slate-800 shadow-md relative overflow-hidden"
+        style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}
+      >
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-blue-500/30 text-blue-200 border border-blue-400/30">
-              <Sparkles className="w-3 h-3 text-cyan-300" />
+          <div className="space-y-1.5 max-w-3xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-blue-500/20 text-cyan-300 border border-cyan-400/30">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               Automated AI Executive Briefing
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-white">
-              Revenue pacing +12.6% ahead of benchmark with strong Electronics momentum.
+            <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
+              Revenue pacing +12.6% ahead of baseline with strong Electronics momentum.
             </h3>
-            <p className="text-xs text-slate-300">
-              ⚡ <strong>3 Actions:</strong> Run What-If simulation for upcoming promotions, reorder 3 low-stock SKUs in Footwear, and activate Market Basket bundles on checkout.
+            <p className="text-xs text-slate-300 leading-relaxed">
+              ⚡ <strong className="text-cyan-300">3 Recommended Actions:</strong> Review forward SKU demand trajectories, reorder 3 low-stock SKUs in Footwear, and activate Market Basket bundling rules on checkout.
             </p>
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
             <Link
-              to="/what-if-simulator"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-blue-50 transition-all shadow-md"
+              to="/product-analysis"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md"
             >
-              <Sliders className="w-3.5 h-3.5 text-blue-600" />
-              Launch What-If Sandbox
+              <Package className="w-3.5 h-3.5" />
+              View Product Analysis
             </Link>
           </div>
         </div>
@@ -238,9 +236,6 @@ export const Dashboard: React.FC = () => {
               <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
                 Sales Trajectory & Momentum
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Gross revenue timeline plotted with seasonality confidence band
-              </p>
             </div>
 
             <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-semibold">
@@ -392,15 +387,12 @@ export const Dashboard: React.FC = () => {
               <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
                 Hero SKU Performance
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Top grossing products ranked by sales velocity and unit movement
-              </p>
             </div>
             <Link
-              to="/product-intelligence"
+              to="/product-analysis"
               className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-0.5"
             >
-              Product Intelligence Hub
+              Product Analysis
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>

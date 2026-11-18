@@ -129,9 +129,6 @@ export const SalesAnalysis: React.FC = () => {
           <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
             Sales Analysis
           </h1>
-          <p className="text-[13px] text-text-muted mt-1.5">
-            Exploratory data analysis across temporal, categorical, and geographical dimensions.
-          </p>
         </div>
 
         {/* Filters: Daily, Weekly, Monthly, Yearly + Date range */}

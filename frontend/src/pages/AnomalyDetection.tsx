@@ -165,9 +165,6 @@ export const AnomalyDetection: React.FC = () => {
               Isolation Forest ML
             </span>
           </div>
-          <p className="text-[13px] text-slate-500 mt-1">
-            Unsupervised machine learning identifying suspicious transaction amounts, bulk resale spikes, and discount abuses.
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5">

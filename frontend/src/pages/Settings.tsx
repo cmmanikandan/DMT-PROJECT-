@@ -40,9 +40,6 @@ export const Settings: React.FC = () => {
         <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-none">
           Settings & System Configuration
         </h1>
-        <p className="text-[13px] text-text-muted mt-1.5">
-          Manage system parameters, localization defaults, and machine learning backend connections.
-        </p>
       </div>
 
       {/* General Settings Card */}

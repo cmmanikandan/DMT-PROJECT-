@@ -47,9 +47,9 @@ export const Layout: React.FC = () => {
       <AICopilotDrawer />
 
       {/* Universal Command Palette (Ctrl+K / Cmd+K) */}
-      <CommandPalette 
-        isOpen={commandPaletteOpen} 
-        onClose={() => setCommandPaletteOpen(false)} 
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
       />
     </div>
   );

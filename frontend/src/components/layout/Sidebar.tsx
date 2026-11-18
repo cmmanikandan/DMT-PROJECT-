@@ -39,7 +39,6 @@ const navSections: NavSection[] = [
     title: 'Intelligence',
     items: [
       { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-      { path: '/what-if-simulator', label: 'What-If Simulator', icon: Sliders, badge: 'New', badgeColor: 'bg-blue-500 text-white' },
       { path: '/prediction', label: 'Sales Prediction', icon: TrendingUp, badge: 'ML' },
     ]
   },
@@ -55,7 +54,7 @@ const navSections: NavSection[] = [
   {
     title: 'Operations & Stock',
     items: [
-      { path: '/product-intelligence', label: 'Product Intelligence', icon: Package, badge: 'All-in-1', badgeColor: 'bg-indigo-500 text-white' },
+      { path: '/product-analysis', label: 'Product Analysis', icon: Package },
       { path: '/inventory-alerts', label: 'Inventory Alerts', icon: AlertTriangle },
       { path: '/preprocessing', label: 'Data Health & ETL', icon: Sparkles },
     ]

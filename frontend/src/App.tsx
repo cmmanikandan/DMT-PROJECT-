@@ -21,8 +21,6 @@ import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { InventoryAlerts } from './pages/InventoryAlerts';
 import { AnomalyDetection } from './pages/AnomalyDetection';
-import { WhatIfSimulator } from './pages/WhatIfSimulator';
-import { ProductIntelligence } from './pages/ProductIntelligence';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -47,133 +45,125 @@ export const AppContent: React.FC = () => {
             </ProtectedRoute>
           }
         >
-          <Route 
-            index 
+          <Route
+            index
             element={
               <ErrorBoundary fallbackTitle="Dashboard Overview Error">
                 <Dashboard />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="dataset" 
+          <Route
+            path="dataset"
             element={
               <ErrorBoundary fallbackTitle="Dataset Management Error">
                 <Dataset />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="preprocessing" 
+          <Route
+            path="preprocessing"
             element={
               <ErrorBoundary fallbackTitle="Data Preprocessing Error">
                 <Preprocessing />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="sales-analysis" 
+          <Route
+            path="sales-analysis"
             element={
               <ErrorBoundary fallbackTitle="Sales Analysis Error">
                 <SalesAnalysis />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="prediction" 
+          <Route
+            path="prediction"
             element={
               <ErrorBoundary fallbackTitle="Sales Prediction Error">
                 <SalesPrediction />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="what-if-simulator" 
-            element={
-              <ErrorBoundary fallbackTitle="What-If Scenario Simulator Error">
-                <WhatIfSimulator />
-              </ErrorBoundary>
-            } 
-          />
-          <Route 
-            path="product-intelligence" 
-            element={
-              <ErrorBoundary fallbackTitle="Product Intelligence Error">
-                <ProductIntelligence />
-              </ErrorBoundary>
-            } 
-          />
-          <Route 
-            path="product-demand" 
-            element={
-              <ErrorBoundary fallbackTitle="Product Demand Error">
-                <ProductIntelligence />
-              </ErrorBoundary>
-            } 
-          />
-          <Route 
-            path="product-analysis" 
+          <Route
+            path="product-analysis"
             element={
               <ErrorBoundary fallbackTitle="Product Analysis Error">
-                <ProductIntelligence />
+                <ProductDemand />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="inventory-alerts" 
+          <Route
+            path="product-demand"
+            element={
+              <ErrorBoundary fallbackTitle="Product Demand Error">
+                <ProductDemand />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="product-intelligence"
+            element={
+              <ErrorBoundary fallbackTitle="Product Analysis Error">
+                <ProductDemand />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="inventory-alerts"
             element={
               <ErrorBoundary fallbackTitle="Inventory Alerts Error">
                 <InventoryAlerts />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="anomalies" 
+          <Route
+            path="anomalies"
             element={
               <ErrorBoundary fallbackTitle="Anomaly Detection Error">
                 <AnomalyDetection />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="customer-segmentation" 
+          <Route
+            path="customer-segmentation"
             element={
               <ErrorBoundary fallbackTitle="Customer Segmentation Error">
                 <CustomerSegmentation />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="market-basket" 
+          <Route
+            path="market-basket"
             element={
               <ErrorBoundary fallbackTitle="Market Basket Analysis Error">
                 <MarketBasket />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="product-performance" 
+          <Route
+            path="product-performance"
             element={
               <ErrorBoundary fallbackTitle="Product Performance Error">
-                <ProductIntelligence />
+                <ProductDemand />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="reports" 
+          <Route
+            path="reports"
             element={
               <ErrorBoundary fallbackTitle="Reports Generation Error">
                 <Reports />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="settings" 
+          <Route
+            path="settings"
             element={
               <ErrorBoundary fallbackTitle="Settings View Error">
                 <Settings />
               </ErrorBoundary>
-            } 
+            }
           />
         </Route>
 
