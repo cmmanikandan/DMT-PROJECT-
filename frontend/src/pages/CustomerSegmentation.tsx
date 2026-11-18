@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ResponsiveContainer, 
-  ScatterChart, 
-  Scatter, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid, 
-  Cell 
+import {
+  ResponsiveContainer,
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Cell
 } from 'recharts';
-import { 
-  Users, 
-  Sparkles, 
-  Crown, 
+import {
+  Users,
+  Sparkles,
+  Crown,
   Search,
   RotateCcw
 } from 'lucide-react';
@@ -20,9 +20,9 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { ExportButton } from '../components/common/ExportButton';
 import { useDataset } from '../context/DatasetContext';
 import { fetchCustomerSegmentation } from '../api/apiClient';
-import { 
-  DEMO_CLUSTER_SUMMARIES, 
-  DEMO_SCATTER_POINTS, 
+import {
+  DEMO_CLUSTER_SUMMARIES,
+  DEMO_SCATTER_POINTS,
   DEMO_CUSTOMER_DETAILS,
   type CustomerSegmentPoint,
   type CustomerDetail,
@@ -116,24 +116,24 @@ export const CustomerSegmentation: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ top: 15, right: 20, bottom: 10, left: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                <XAxis 
-                  type="number" 
-                  dataKey="frequency" 
-                  name="Orders" 
-                  unit=" orders" 
-                  tick={{ fontSize: 11, fill: '#6B7C93' }} 
+                <XAxis
+                  type="number"
+                  dataKey="frequency"
+                  name="Orders"
+                  unit=" orders"
+                  tick={{ fontSize: 11, fill: '#6B7C93' }}
                   axisLine={{ stroke: '#DCE5EF' }}
                 />
-                <YAxis 
-                  type="number" 
-                  dataKey="spending" 
-                  name="Spending" 
-                  unit="₹" 
-                  tick={{ fontSize: 11, fill: '#6B7C93' }} 
-                  axisLine={false} 
+                <YAxis
+                  type="number"
+                  dataKey="spending"
+                  name="Spending"
+                  unit="₹"
+                  tick={{ fontSize: 11, fill: '#6B7C93' }}
+                  axisLine={false}
                   tickFormatter={(val) => `₹${((Number(val) || 0) / 1000).toFixed(0)}k`}
                 />
-                <Tooltip 
+                <Tooltip
                   cursor={{ strokeDasharray: '3 3' }}
                   contentStyle={{
                     backgroundColor: '#FFFFFF',
@@ -151,9 +151,9 @@ export const CustomerSegmentation: React.FC = () => {
                     const cNum = typeof entry.cluster === 'number' ? entry.cluster : parseInt(String(entry.cluster || 1), 10) || 1;
                     const colorIndex = Math.abs(cNum - 1) % clusterColors.length;
                     return (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={clusterColors[colorIndex] || '#1769E0'} 
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={clusterColors[colorIndex] || '#1769E0'}
                       />
                     );
                   })}
@@ -182,17 +182,16 @@ export const CustomerSegmentation: React.FC = () => {
               <div
                 key={idx}
                 onClick={() => setSelectedCluster(selectedCluster === c.cluster ? 'All' : c.cluster)}
-                className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                  selectedCluster === c.cluster 
-                    ? 'border-primary bg-primary-light/30 shadow-xs' 
+                className={`p-3 rounded-lg border transition-all cursor-pointer ${selectedCluster === c.cluster
+                    ? 'border-primary bg-primary-light/30 shadow-xs'
                     : 'border-surface-border bg-slate-50 hover:bg-slate-100/70'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span 
-                      className="w-3 h-3 rounded-full flex-shrink-0" 
-                      style={{ backgroundColor: c.color || clusterColors[idx % clusterColors.length] }} 
+                    <span
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: c.color || clusterColors[idx % clusterColors.length] }}
                     />
                     <span className="text-[13px] font-semibold text-text-main">
                       {c.cluster} — {c.name}
@@ -225,7 +224,7 @@ export const CustomerSegmentation: React.FC = () => {
           <div className="pt-3 border-t border-slate-100 mt-2 text-[11px] text-text-muted flex justify-between items-center">
             <span>Total Segmented: <strong>{clusterSummaries.reduce((sum, c) => sum + (c.count || 0), 0).toLocaleString()}</strong></span>
             {selectedCluster !== 'All' && (
-              <button 
+              <button
                 onClick={() => setSelectedCluster('All')}
                 className="text-primary hover:underline font-medium flex items-center gap-1"
               >
@@ -302,8 +301,8 @@ export const CustomerSegmentation: React.FC = () => {
                       <StatusBadge
                         variant={
                           c.cluster === 'Cluster 1' ? 'blue' :
-                          c.cluster === 'Cluster 2' ? 'green' :
-                          c.cluster === 'Cluster 3' ? 'amber' : 'purple'
+                            c.cluster === 'Cluster 2' ? 'green' :
+                              c.cluster === 'Cluster 3' ? 'amber' : 'purple'
                         }
                       >
                         {c.cluster} ({c.clusterName || 'Segment'})

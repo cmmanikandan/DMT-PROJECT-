@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Sliders, 
   Database, 
   Sparkles, 
   LineChart, 
@@ -15,58 +14,32 @@ import {
   LogOut,
   AlertTriangle,
   ShieldAlert,
-  ChevronRight,
-  Zap,
   Activity
 } from 'lucide-react';
 import { useDataset } from '../../context/DatasetContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
-interface NavSection {
-  title: string;
-  items: {
-    path: string;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-    badge?: string;
-    badgeColor?: string;
-  }[];
+interface NavItem {
+  path: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 }
 
-const navSections: NavSection[] = [
-  {
-    title: 'Intelligence',
-    items: [
-      { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-      { path: '/prediction', label: 'Sales Prediction', icon: TrendingUp, badge: 'ML' },
-    ]
-  },
-  {
-    title: 'Data Mining & ML',
-    items: [
-      { path: '/sales-analysis', label: 'Sales Analysis', icon: LineChart },
-      { path: '/customer-segmentation', label: 'Customer Clusters', icon: Users },
-      { path: '/market-basket', label: 'Market Basket', icon: ShoppingBag },
-      { path: '/anomalies', label: 'Anomaly Audit', icon: ShieldAlert },
-    ]
-  },
-  {
-    title: 'Operations & Stock',
-    items: [
-      { path: '/product-analysis', label: 'Product Analysis', icon: Package },
-      { path: '/inventory-alerts', label: 'Inventory Alerts', icon: AlertTriangle },
-      { path: '/preprocessing', label: 'Data Health & ETL', icon: Sparkles },
-    ]
-  },
-  {
-    title: 'Management',
-    items: [
-      { path: '/dataset', label: 'Dataset Center', icon: Database },
-      { path: '/reports', label: 'Reports & Export', icon: FileText },
-      { path: '/settings', label: 'Settings', icon: Settings },
-    ]
-  }
+const navItems: NavItem[] = [
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/dataset', label: 'Dataset', icon: Database },
+  { path: '/preprocessing', label: 'Preprocessing', icon: Sparkles },
+  { path: '/sales-analysis', label: 'Sales Analysis', icon: LineChart },
+  { path: '/prediction', label: 'Sales Prediction', icon: TrendingUp },
+  { path: '/product-analysis', label: 'Product Analysis', icon: Package },
+  { path: '/inventory-alerts', label: 'Inventory Alerts', icon: AlertTriangle },
+  { path: '/anomalies', label: 'Anomaly Detection', icon: ShieldAlert },
+  { path: '/customer-segmentation', label: 'Customer Segmentation', icon: Users },
+  { path: '/market-basket', label: 'Market Basket', icon: ShoppingBag },
+  { path: '/reports', label: 'Reports', icon: FileText },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
@@ -98,7 +71,7 @@ export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
       >
         {/* Top: Brand Header */}
         <div className="flex-1 overflow-y-auto">
-          <div className="h-[64px] px-4 flex items-center justify-between border-b border-slate-800/80 bg-slate-950">
+          <div className="h-[64px] px-4 flex items-center justify-between border-b border-slate-800/80 bg-slate-950 sticky top-0 z-10">
             <div className="flex items-center gap-3">
               <img 
                 src="/LOGO.png" 
@@ -119,55 +92,45 @@ export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
             </div>
           </div>
 
-          {/* Grouped Nav Items */}
-          <div className="py-4 px-3 space-y-6">
-            {navSections.map((section, sIdx) => (
-              <div key={sIdx} className="space-y-1">
-                <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                  {section.title}
-                </p>
+          {/* Ordered Navigation List (In Sequential Workflow Order, No Subtitles) */}
+          <nav className="py-3 px-2.5 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 font-bold'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/80'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className="flex items-center gap-2.5 truncate">
+                        <Icon className={`w-4 h-4 flex-shrink-0 transition-transform ${
+                          isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+                        }`} />
+                        <span className="truncate">{item.label}</span>
+                      </div>
 
-                <div className="space-y-0.5 pt-1">
-                  {section.items.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <NavLink
-                        key={item.path}
-                        to={item.path}
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                          `group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
-                            isActive
-                              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 font-bold'
-                              : 'text-slate-400 hover:text-white hover:bg-slate-900/80'
-                          }`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <div className="flex items-center gap-2.5 truncate">
-                              <Icon className={`w-4 h-4 flex-shrink-0 transition-transform ${
-                                isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
-                              }`} />
-                              <span className="truncate">{item.label}</span>
-                            </div>
-
-                            {item.badge && (
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider ${
-                                item.badgeColor || (isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-300')
-                              }`}>
-                                {item.badge}
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+                      {item.badge && (
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider ${
+                          isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-300'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
 
         {/* Bottom Section: Active Dataset & Sign Out */}

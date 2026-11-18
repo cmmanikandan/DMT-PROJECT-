@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ShieldAlert, 
-  AlertTriangle, 
-  TrendingDown, 
-  DollarSign, 
-  RefreshCw, 
-  Search, 
-  Filter, 
-  CheckCircle, 
+import {
+  ShieldAlert,
+  AlertTriangle,
+  TrendingDown,
+  DollarSign,
+  RefreshCw,
+  Search,
+  Filter,
+  CheckCircle,
   Zap,
   Info
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid 
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid
 } from 'recharts';
 import { useDataset } from '../context/DatasetContext';
 import { useToast } from '../context/ToastContext';
@@ -146,9 +146,9 @@ export const AnomalyDetection: React.FC = () => {
   const filtered = data.anomalies.filter(item => {
     const matchesSev = severityFilter === 'All' || item.severity === severityFilter;
     const matchesSearch = item.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.transaction_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.reason.toLowerCase().includes(searchTerm.toLowerCase());
+      item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.transaction_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.reason.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSev && matchesSearch;
   });
 
@@ -168,7 +168,7 @@ export const AnomalyDetection: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <button 
+          <button
             onClick={loadData}
             disabled={loading}
             className="flex items-center gap-1.5 px-3 py-2 text-[12.5px] font-medium bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg shadow-xs transition"
@@ -176,7 +176,7 @@ export const AnomalyDetection: React.FC = () => {
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Re-scan
           </button>
-          <ExportButton 
+          <ExportButton
             title="Flagged_Anomalies_Report"
             data={data.anomalies}
             pdfTitle="ECOMSIGHT Flagged Anomalies & Fraud Report"
@@ -254,7 +254,7 @@ export const AnomalyDetection: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="reason" stroke="#94a3b8" fontSize={12} tickLine={false} />
               <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#fff' }}
                 cursor={{ fill: 'rgba(23, 105, 224, 0.05)' }}
               />
@@ -272,9 +272,8 @@ export const AnomalyDetection: React.FC = () => {
               <button
                 key={tab}
                 onClick={() => setSeverityFilter(tab)}
-                className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition ${
-                  severityFilter === tab ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                }`}
+                className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition ${severityFilter === tab ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                  }`}
               >
                 {tab === 'All' ? 'All Severities' : `${tab} Risk`}
               </button>
@@ -346,9 +345,8 @@ export const AnomalyDetection: React.FC = () => {
                     </td>
                     <td className="py-3 px-4 text-center">
                       <div className="inline-flex items-center gap-1.5 font-bold">
-                        <span className={`text-[13px] ${
-                          row.risk_score >= 80 ? 'text-rose-600' : 'text-amber-600'
-                        }`}>
+                        <span className={`text-[13px] ${row.risk_score >= 80 ? 'text-rose-600' : 'text-amber-600'
+                          }`}>
                           {row.risk_score}
                         </span>
                         <span className="text-[10px] text-slate-400 font-normal">/100</span>

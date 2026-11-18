@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search, 
-  LayoutDashboard, 
-  Sliders, 
-  TrendingUp, 
-  Users, 
-  ShoppingBag, 
-  AlertTriangle, 
-  ShieldAlert, 
-  Database, 
-  FileText, 
-  Sparkles, 
-  Settings, 
+import {
+  Search,
+  LayoutDashboard,
+  Sliders,
+  TrendingUp,
+  Users,
+  ShoppingBag,
+  AlertTriangle,
+  ShieldAlert,
+  Database,
+  FileText,
+  Sparkles,
+  Settings,
   ArrowRight,
   Command,
   Zap,
-  Package
+  Package,
+  LineChart
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -52,6 +53,33 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       badge: 'Overview'
     },
     {
+      id: 'dataset',
+      category: 'Navigation',
+      title: 'Dataset Management',
+      subtitle: 'Upload CSV datasets, switch active databases, inspect schema',
+      icon: Database,
+      path: '/dataset',
+      badge: 'Data Ingestion'
+    },
+    {
+      id: 'preprocessing',
+      category: 'Actions',
+      title: 'Data Preprocessing & Health',
+      subtitle: 'Auto-clean missing values, prune duplicates, remove outliers',
+      icon: Sparkles,
+      path: '/preprocessing',
+      badge: 'ETL'
+    },
+    {
+      id: 'sales-analysis',
+      category: 'Analytics',
+      title: 'Sales Analysis',
+      subtitle: 'Exploratory data analysis across temporal and categorical trends',
+      icon: LineChart,
+      path: '/sales-analysis',
+      badge: 'EDA'
+    },
+    {
       id: 'prediction',
       category: 'Analytics',
       title: 'Sales Prediction Engine',
@@ -67,24 +95,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       subtitle: 'Demand forecasts, SKU velocity & reorder thresholds',
       icon: Package,
       path: '/product-analysis'
-    },
-    {
-      id: 'customer-segmentation',
-      category: 'Analytics',
-      title: 'Customer Segmentation (RFM + K-Means)',
-      subtitle: 'Cluster analysis: Champions, Loyal, At-Risk & Lost',
-      icon: Users,
-      path: '/customer-segmentation',
-      badge: 'Clustering'
-    },
-    {
-      id: 'market-basket',
-      category: 'Analytics',
-      title: 'Market Basket Analysis (Apriori)',
-      subtitle: 'Product cross-sell rules, support, confidence & lift scores',
-      icon: ShoppingBag,
-      path: '/market-basket',
-      badge: 'Apriori'
     },
     {
       id: 'inventory-alerts',
@@ -105,22 +115,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       badge: 'Security'
     },
     {
-      id: 'preprocessing',
-      category: 'Actions',
-      title: 'Data Preprocessing & Health',
-      subtitle: 'Auto-clean missing values, prune duplicates, remove outliers',
-      icon: Sparkles,
-      path: '/preprocessing',
-      badge: 'ETL'
+      id: 'customer-segmentation',
+      category: 'Analytics',
+      title: 'Customer Segmentation (RFM + K-Means)',
+      subtitle: 'Cluster analysis: Champions, Loyal, At-Risk & Lost',
+      icon: Users,
+      path: '/customer-segmentation',
+      badge: 'Clustering'
     },
     {
-      id: 'dataset',
-      category: 'Navigation',
-      title: 'Dataset Management',
-      subtitle: 'Upload CSV datasets, switch active databases, inspect schema',
-      icon: Database,
-      path: '/dataset',
-      badge: 'Data'
+      id: 'market-basket',
+      category: 'Analytics',
+      title: 'Market Basket Analysis (Apriori)',
+      subtitle: 'Product cross-sell rules, support, confidence & lift scores',
+      icon: ShoppingBag,
+      path: '/market-basket',
+      badge: 'Apriori'
     },
     {
       id: 'reports',
@@ -141,7 +151,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     }
   ];
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     item.title.toLowerCase().includes(query.toLowerCase()) ||
     item.subtitle.toLowerCase().includes(query.toLowerCase()) ||
     item.category.toLowerCase().includes(query.toLowerCase())
@@ -186,13 +196,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
-        onClick={onClose} 
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div 
+      <div
         className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150"
         onKeyDown={handleKeyDown}
       >
@@ -230,27 +240,24 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                   key={item.id}
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setSelectedIndex(index)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all ${
-                    isSelected 
-                      ? 'bg-blue-50 text-blue-900' 
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all ${isSelected
+                      ? 'bg-blue-50 text-blue-900'
                       : 'hover:bg-slate-50 text-slate-700'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`p-2 rounded-lg flex-shrink-0 ${
-                      isSelected ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-500'
-                    }`}>
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${isSelected ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                      }`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold truncate">{item.title}</span>
                         {item.badge && (
-                          <span className={`text-[10px] font-medium px-1.5 py-0.2 rounded ${
-                            isSelected 
-                              ? 'bg-blue-200/60 text-blue-800' 
+                          <span className={`text-[10px] font-medium px-1.5 py-0.2 rounded ${isSelected
+                              ? 'bg-blue-200/60 text-blue-800'
                               : 'bg-slate-100 text-slate-600'
-                          }`}>
+                            }`}>
                             {item.badge}
                           </span>
                         )}
