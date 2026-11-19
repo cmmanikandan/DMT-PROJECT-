@@ -53,6 +53,11 @@ export const Preprocessing: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span>Active: {datasetMeta.filename}</span>
+            <span className="text-blue-400 font-mono">({datasetMeta.rows.toLocaleString()} rows)</span>
+          </span>
           <StatusBadge variant={isCleaned ? 'green' : 'amber'} size="md">
             {isCleaned ? 'Dataset Cleaned & Ready' : 'Cleaning Required'}
           </StatusBadge>
@@ -87,40 +92,48 @@ export const Preprocessing: React.FC = () => {
                 <span className="text-[12px] text-text-muted font-medium block">
                   Missing Values
                 </span>
-                <span className="text-[24px] font-semibold text-brand-amber mt-1 block">
-                  {cleaningReport.before.missing_values}
+                <span className={`text-[24px] font-semibold mt-1 block ${(datasetMeta.missingValues ?? 0) > 0 ? 'text-brand-amber' : 'text-brand-green'}`}>
+                  {datasetMeta.missingValues ?? 0}
                 </span>
-                <span className="text-[10px] text-text-light">Blanks across region/payment</span>
+                <span className="text-[10px] text-text-light">
+                  {(datasetMeta.missingValues ?? 0) > 0 ? 'Attribute values requiring imputation' : 'Zero missing values detected'}
+                </span>
               </div>
 
               <div className="p-3.5 rounded-lg bg-slate-50 border border-surface-border">
                 <span className="text-[12px] text-text-muted font-medium block">
                   Duplicate Rows
                 </span>
-                <span className="text-[24px] font-semibold text-brand-red mt-1 block">
-                  {cleaningReport.before.duplicates}
+                <span className={`text-[24px] font-semibold mt-1 block ${(datasetMeta.duplicates ?? 0) > 0 ? 'text-brand-red' : 'text-brand-green'}`}>
+                  {datasetMeta.duplicates ?? 0}
                 </span>
-                <span className="text-[10px] text-text-light">Redundant identical transactions</span>
+                <span className="text-[10px] text-text-light">
+                  {(datasetMeta.duplicates ?? 0) > 0 ? 'Redundant identical transactions' : 'Zero duplicate records'}
+                </span>
               </div>
 
               <div className="p-3.5 rounded-lg bg-slate-50 border border-surface-border">
                 <span className="text-[12px] text-text-muted font-medium block">
                   Invalid Values
                 </span>
-                <span className="text-[24px] font-semibold text-brand-red mt-1 block">
-                  {cleaningReport.before.invalid_values}
+                <span className={`text-[24px] font-semibold mt-1 block ${(datasetMeta.invalidValues ?? 0) > 0 ? 'text-brand-red' : 'text-brand-green'}`}>
+                  {datasetMeta.invalidValues ?? 0}
                 </span>
-                <span className="text-[10px] text-text-light">Negative prices / corrupt codes</span>
+                <span className="text-[10px] text-text-light">
+                  {(datasetMeta.invalidValues ?? 0) > 0 ? 'Negative prices / corrupt codes' : 'All transaction codes valid'}
+                </span>
               </div>
 
               <div className="p-3.5 rounded-lg bg-slate-50 border border-surface-border">
                 <span className="text-[12px] text-text-muted font-medium block">
                   Outliers
                 </span>
-                <span className="text-[24px] font-semibold text-text-main mt-1 block">
-                  {cleaningReport.before.outliers}
+                <span className={`text-[24px] font-semibold mt-1 block ${(datasetMeta.outliers ?? 0) > 0 ? 'text-brand-amber' : 'text-text-main'}`}>
+                  {datasetMeta.outliers ?? 0}
                 </span>
-                <span className="text-[10px] text-text-light">Extreme quantity anomalies</span>
+                <span className="text-[10px] text-text-light">
+                  {(datasetMeta.outliers ?? 0) > 0 ? 'Statistical IQR volume outliers' : 'Within normal IQR variance bounds'}
+                </span>
               </div>
             </div>
           </div>

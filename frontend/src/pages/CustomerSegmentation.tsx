@@ -31,12 +31,26 @@ import {
 import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 
 export const CustomerSegmentation: React.FC = () => {
-  const { backendOnline, hasDataset } = useDataset();
-  const [clusterSummaries, setClusterSummaries] = useState<ClusterSummary[]>(DEMO_CLUSTER_SUMMARIES);
-  const [scatterPoints, setScatterPoints] = useState<CustomerSegmentPoint[]>(DEMO_SCATTER_POINTS);
-  const [customerDetails, setCustomerDetails] = useState<CustomerDetail[]>(DEMO_CUSTOMER_DETAILS);
+  const { backendOnline, hasDataset, customerSegmentsData } = useDataset();
+  const [clusterSummaries, setClusterSummaries] = useState<ClusterSummary[]>(() =>
+    customerSegmentsData?.summary?.length ? customerSegmentsData.summary : DEMO_CLUSTER_SUMMARIES
+  );
+  const [scatterPoints, setScatterPoints] = useState<CustomerSegmentPoint[]>(() =>
+    customerSegmentsData?.scatter_points?.length ? customerSegmentsData.scatter_points : DEMO_SCATTER_POINTS
+  );
+  const [customerDetails, setCustomerDetails] = useState<CustomerDetail[]>(() =>
+    customerSegmentsData?.customers_table?.length ? customerSegmentsData.customers_table : DEMO_CUSTOMER_DETAILS
+  );
   const [selectedCluster, setSelectedCluster] = useState<string>('All');
   const [search, setSearch] = useState<string>('');
+
+  useEffect(() => {
+    if (customerSegmentsData) {
+      if (customerSegmentsData.summary?.length) setClusterSummaries(customerSegmentsData.summary);
+      if (customerSegmentsData.scatter_points?.length) setScatterPoints(customerSegmentsData.scatter_points);
+      if (customerSegmentsData.customers_table?.length) setCustomerDetails(customerSegmentsData.customers_table);
+    }
+  }, [customerSegmentsData]);
 
   useEffect(() => {
     if (backendOnline && hasDataset) {

@@ -35,7 +35,7 @@ import { getCategoryColor } from '../utils/categoryColors';
 import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 
 export const SalesAnalysis: React.FC = () => {
-  const { backendOnline, hasDataset } = useDataset();
+  const { backendOnline, hasDataset, salesAnalytics } = useDataset();
   const [granularity, setGranularity] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
 
   // Safe number formatter helper to completely prevent NaN
@@ -47,8 +47,8 @@ export const SalesAnalysis: React.FC = () => {
     return isNaN(num) ? fallback.toLocaleString() : num.toLocaleString();
   };
 
-  // Realistic fallback analytics
-  const [analytics, setAnalytics] = useState<any>({
+  // Initialize immediately with cached salesAnalytics if available (0ms instant page display)
+  const [analytics, setAnalytics] = useState<any>(() => salesAnalytics?.trend ? salesAnalytics : {
     kpis: {
       total_revenue_display: "₹12,84,500",
       total_orders: 18450,
@@ -100,6 +100,11 @@ export const SalesAnalysis: React.FC = () => {
   });
 
   useEffect(() => {
+    if (salesAnalytics && granularity === 'monthly') {
+      if (salesAnalytics.trend) setAnalytics(salesAnalytics);
+      return;
+    }
+
     if (backendOnline && hasDataset) {
       fetchSalesAnalytics(granularity)
         .then((res) => {
@@ -107,7 +112,7 @@ export const SalesAnalysis: React.FC = () => {
         })
         .catch(() => {});
     }
-  }, [backendOnline, hasDataset, granularity]);
+  }, [backendOnline, hasDataset, granularity, salesAnalytics]);
 
   if (!hasDataset) {
     return <NoDatasetEmptyState pageName="Sales Analysis" />;

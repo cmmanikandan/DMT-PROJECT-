@@ -8,7 +8,6 @@ import {
   Users,
   ShoppingBag,
   AlertTriangle,
-  ShieldAlert,
   Database,
   FileText,
   Sparkles,
@@ -104,15 +103,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       icon: AlertTriangle,
       path: '/inventory-alerts',
       badge: 'Urgent'
-    },
-    {
-      id: 'anomalies',
-      category: 'Analytics',
-      title: 'Anomaly & Fraud Detection',
-      subtitle: 'Isolation Forest anomaly detection on orders and refunds',
-      icon: ShieldAlert,
-      path: '/anomalies',
-      badge: 'Security'
     },
     {
       id: 'customer-segmentation',
@@ -241,8 +231,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all ${isSelected
-                      ? 'bg-blue-50 text-blue-900'
-                      : 'hover:bg-slate-50 text-slate-700'
+                    ? 'bg-blue-50 text-blue-900'
+                    : 'hover:bg-slate-50 text-slate-700'
                     }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -255,8 +245,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                         <span className="text-sm font-semibold truncate">{item.title}</span>
                         {item.badge && (
                           <span className={`text-[10px] font-medium px-1.5 py-0.2 rounded ${isSelected
-                              ? 'bg-blue-200/60 text-blue-800'
-                              : 'bg-slate-100 text-slate-600'
+                            ? 'bg-blue-200/60 text-blue-800'
+                            : 'bg-slate-100 text-slate-600'
                             }`}>
                             {item.badge}
                           </span>

@@ -41,13 +41,13 @@ import { getCategoryColor } from '../utils/categoryColors';
 import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 
 export const Dashboard: React.FC = () => {
-  const { backendOnline, hasDataset, datasetMeta } = useDataset();
-  const [salesTrend, setSalesTrend] = useState(DEMO_SALES_TREND);
-  const [categories, setCategories] = useState(DEMO_CATEGORIES);
-  const [topProducts, setTopProducts] = useState(DEMO_TOP_PRODUCTS);
+  const { backendOnline, hasDataset, datasetMeta, salesAnalytics } = useDataset();
+  const [salesTrend, setSalesTrend] = useState(() => (salesAnalytics?.trend?.length ? salesAnalytics.trend : DEMO_SALES_TREND));
+  const [categories, setCategories] = useState(() => (salesAnalytics?.categories?.length ? salesAnalytics.categories : DEMO_CATEGORIES));
+  const [topProducts, setTopProducts] = useState(() => (salesAnalytics?.top_products?.length ? salesAnalytics.top_products : DEMO_TOP_PRODUCTS));
   const [trendPeriod, setTrendPeriod] = useState<'monthly' | 'weekly'>('monthly');
   const [dateFilter, setDateFilter] = useState<'30D' | '90D' | 'YTD' | 'All'>('30D');
-  const [kpis, setKpis] = useState<any>({
+  const [kpis, setKpis] = useState<any>(() => salesAnalytics?.kpis || {
     total_revenue_display: "₹12,84,500",
     total_revenue_growth: "+12.6%",
     total_orders: 18450,
@@ -59,6 +59,14 @@ export const Dashboard: React.FC = () => {
   });
 
   useEffect(() => {
+    if (salesAnalytics && trendPeriod === 'monthly') {
+      if (salesAnalytics.trend?.length) setSalesTrend(salesAnalytics.trend);
+      if (salesAnalytics.categories?.length) setCategories(salesAnalytics.categories);
+      if (salesAnalytics.top_products?.length) setTopProducts(salesAnalytics.top_products);
+      if (salesAnalytics.kpis) setKpis(salesAnalytics.kpis);
+      return;
+    }
+
     if (backendOnline && hasDataset) {
       fetchSalesAnalytics(trendPeriod)
         .then((data) => {
@@ -69,7 +77,7 @@ export const Dashboard: React.FC = () => {
         })
         .catch(() => {});
     }
-  }, [backendOnline, hasDataset, trendPeriod]);
+  }, [backendOnline, hasDataset, trendPeriod, salesAnalytics]);
 
   if (!hasDataset) {
     return <NoDatasetEmptyState pageName="Dashboard Overview" />;
@@ -333,7 +341,7 @@ export const Dashboard: React.FC = () => {
                   paddingAngle={3}
                   dataKey="percentage"
                 >
-                  {categories.map((entry, index) => (
+                  {categories.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={getCategoryColor(entry.name, index, entry.color)} />
                   ))}
                 </Pie>
@@ -359,7 +367,7 @@ export const Dashboard: React.FC = () => {
 
           {/* Category Chips */}
           <div className="space-y-1.5 pt-3 border-t border-slate-100 text-xs">
-            {categories.slice(0, 4).map((cat, idx) => {
+            {categories.slice(0, 4).map((cat: any, idx: number) => {
               const chipColor = getCategoryColor(cat.name, idx, cat.color);
               return (
                 <div key={idx} className="flex items-center justify-between">
@@ -409,7 +417,7 @@ export const Dashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {topProducts.map((p) => (
+                {topProducts.map((p: any) => (
                   <tr key={p.id}>
                     <td className="font-semibold text-slate-800 flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-blue-600 flex-shrink-0">

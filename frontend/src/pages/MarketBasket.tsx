@@ -18,16 +18,26 @@ import { DEMO_ASSOCIATION_RULES } from '../data/demoData';
 import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 
 export const MarketBasket: React.FC = () => {
-  const { backendOnline, hasDataset, datasetMeta } = useDataset();
-  const [rules, setRules] = useState(DEMO_ASSOCIATION_RULES);
+  const { backendOnline, hasDataset, datasetMeta, marketBasketData } = useDataset();
+  const [rules, setRules] = useState<any[]>(() => 
+    marketBasketData && marketBasketData.length > 0 ? marketBasketData : DEMO_ASSOCIATION_RULES
+  );
   const [minSupport, setMinSupport] = useState(2);
   const [minConfidence, setMinConfidence] = useState(30);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (marketBasketData && marketBasketData.length > 0) {
+      setRules(marketBasketData);
+    }
+  }, [marketBasketData]);
+
+  useEffect(() => {
     let isMounted = true;
     if (backendOnline && hasDataset) {
-      setIsLoading(true);
+      if (!marketBasketData || marketBasketData.length === 0) {
+        setIsLoading(true);
+      }
       fetchMarketBasket(minSupport / 100, minConfidence / 100)
         .then((data) => {
           if (isMounted && data.rules && data.rules.length > 0) {

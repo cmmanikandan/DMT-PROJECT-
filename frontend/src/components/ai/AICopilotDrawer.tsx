@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Send, 
-  X, 
-  Bot, 
-  User, 
-  Minimize2, 
-  Maximize2, 
-  BarChart3, 
-  TrendingUp, 
+import {
+  Sparkles,
+  Send,
+  X,
+  Bot,
+  User,
+  Minimize2,
+  Maximize2,
+  BarChart3,
+  TrendingUp,
   RefreshCw,
   Lightbulb,
   Zap,
@@ -16,16 +16,16 @@ import {
   HelpCircle,
   Database
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  PieChart, 
-  Pie, 
-  Cell 
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts';
 import { askAIAssistant } from '../../api/apiClient';
 import { useDataset } from '../../context/DatasetContext';
@@ -59,7 +59,7 @@ export const AICopilotDrawer: React.FC = () => {
         "What are the top 5 revenue-generating products?",
         "Which product categories have the highest growth?",
         "Explain our customer churn & loyalty segments",
-        "Detect transaction anomalies in recent orders"
+        "Show top market basket product bundles"
       ],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
@@ -198,11 +198,10 @@ export const AICopilotDrawer: React.FC = () => {
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
-                    msg.sender === 'user'
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${msg.sender === 'user'
                       ? 'bg-blue-600 text-white rounded-br-none shadow-xs font-medium'
                       : 'bg-slate-100/90 text-slate-800 rounded-bl-none border border-slate-200/60'
-                  }`}
+                    }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
 

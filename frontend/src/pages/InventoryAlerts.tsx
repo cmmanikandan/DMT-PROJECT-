@@ -20,7 +20,7 @@ import { ExportButton } from '../components/common/ExportButton';
 import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 
 export const InventoryAlerts: React.FC = () => {
-  const { backendOnline, hasDataset } = useDataset();
+  const { backendOnline, hasDataset, inventoryAlertsData } = useDataset();
   const { showToast } = useToast();
 
   const [leadTime, setLeadTime] = useState<number>(7);
@@ -28,33 +28,8 @@ export const InventoryAlerts: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
   
-  const [inventoryData, setInventoryData] = useState<{
-    kpis: {
-      total_products: number;
-      critical_stock_count: number;
-      reorder_needed_count: number;
-      optimal_stock_count: number;
-      overstocked_count: number;
-      restock_budget_required: number;
-      restock_budget_required_display: string;
-    };
-    alerts: Array<{
-      product_name: string;
-      category: string;
-      current_stock: number;
-      daily_velocity: number;
-      safety_stock: number;
-      reorder_point: number;
-      days_remaining: number;
-      status: string;
-      badge_color: string;
-      priority: string;
-      recommended_order: number;
-      avg_unit_cost: number;
-      est_restock_cost: number;
-      est_restock_cost_display: string;
-    }>;
-  }>({
+  const [inventoryData, setInventoryData] = useState<any>(() => 
+    inventoryAlertsData?.kpis ? inventoryAlertsData : {
     kpis: {
       total_products: 24,
       critical_stock_count: 4,
@@ -149,14 +124,18 @@ export const InventoryAlerts: React.FC = () => {
   };
 
   useEffect(() => {
+    if (inventoryAlertsData?.kpis && leadTime === 7) {
+      setInventoryData(inventoryAlertsData);
+      return;
+    }
     loadAlerts(leadTime);
-  }, [backendOnline, hasDataset, leadTime]);
+  }, [backendOnline, hasDataset, leadTime, inventoryAlertsData]);
 
   if (!hasDataset) {
     return <NoDatasetEmptyState pageName="Inventory Restock Alerts" />;
   }
 
-  const filteredAlerts = inventoryData.alerts.filter(item => {
+  const filteredAlerts = (inventoryData.alerts || []).filter((item: any) => {
     const matchesStatus = statusFilter === 'All' || item.status === statusFilter;
     const matchesSearch = item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           item.category.toLowerCase().includes(searchTerm.toLowerCase());
@@ -326,7 +305,7 @@ export const InventoryAlerts: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredAlerts.map((row, i) => (
+                filteredAlerts.map((row: any, i: number) => (
                   <tr key={i} className="hover:bg-slate-50/70 transition">
                     <td className="py-3 px-4 font-medium text-slate-900 max-w-[200px] truncate">
                       {row.product_name}

@@ -25,7 +25,7 @@ import { NoDatasetEmptyState } from '../components/common/NoDatasetEmptyState';
 import { generateExecutivePDFReport } from '../utils/pdfReportGenerator';
 
 export const Reports: React.FC = () => {
-  const { hasDataset, datasetMeta } = useDataset();
+  const { hasDataset, datasetMeta, salesAnalytics, customerSegmentsData, productDemandData, marketBasketData } = useDataset();
   const { showToast } = useToast();
   const [isGeneratingMaster, setIsGeneratingMaster] = useState(false);
 
@@ -33,17 +33,22 @@ export const Reports: React.FC = () => {
     return <NoDatasetEmptyState pageName="Reports & Analytical Exports" description="No dataset is loaded. Ingest an e-commerce sales dataset to compile, view, and export PDF/Excel/CSV analytical reports." />;
   }
 
+  const activeSalesTrend = salesAnalytics?.trend?.length ? salesAnalytics.trend : DEMO_SALES_TREND;
+  const activeCustomers = customerSegmentsData?.customers_table?.length ? customerSegmentsData.customers_table : DEMO_CUSTOMER_DETAILS;
+  const activeProducts = productDemandData?.length ? productDemandData : DEMO_DEMAND_PRODUCTS;
+  const activeRules = marketBasketData?.length ? marketBasketData : DEMO_ASSOCIATION_RULES;
+
   const handleDownloadMasterPDF = async () => {
     try {
       setIsGeneratingMaster(true);
       showToast("Compiling Master Executive Audit PDF with brand logo...", "info");
 
       // Merge high-level insights for the executive audit
-      const masterAuditData = DEMO_SALES_TREND.map((item, idx) => ({
+      const masterAuditData = activeSalesTrend.map((item: any, idx: number) => ({
         Month: item.period,
-        Gross_Revenue: `Rs. ${item.sales.toLocaleString()}`,
-        Orders_Fulfilled: item.orders,
-        Avg_Order_Value: `Rs. ${Math.round(item.sales / Math.max(1, item.orders))}`,
+        Gross_Revenue: `Rs. ${(item.sales || 0).toLocaleString()}`,
+        Orders_Fulfilled: item.orders || 0,
+        Avg_Order_Value: `Rs. ${Math.round((item.sales || 0) / Math.max(1, item.orders || 1))}`,
         Growth_Velocity: `${((idx + 1) * 3.4).toFixed(1)}%`
       }));
 
@@ -55,7 +60,7 @@ export const Reports: React.FC = () => {
         metrics: [
           { label: 'Active Dataset', value: datasetMeta.filename.split('.')[0].slice(0, 16) },
           { label: 'Total Transactions', value: datasetMeta.rows.toLocaleString() },
-          { label: 'Revenue Run Rate', value: 'Rs. 12.84M' },
+          { label: 'Revenue Run Rate', value: salesAnalytics?.kpis?.total_revenue_display || 'Rs. 12.84M' },
           { label: 'Audit Quality', value: datasetMeta.qualityStatus || 'Verified' }
         ],
         columns: [
@@ -85,8 +90,8 @@ export const Reports: React.FC = () => {
       icon: TrendingUp,
       color: "text-blue-600 bg-blue-50 border border-blue-200",
       badge: "Financial Audit",
-      dataPoints: `${DEMO_SALES_TREND.length} Monthly Periods`,
-      data: DEMO_SALES_TREND,
+      dataPoints: `${activeSalesTrend.length} Monthly Periods`,
+      data: activeSalesTrend,
       pdfTitle: "ECOMSIGHT Comprehensive Sales Report"
     },
     {
@@ -108,7 +113,7 @@ export const Reports: React.FC = () => {
       color: "text-emerald-600 bg-emerald-50 border border-emerald-200",
       badge: "K-Means Clusters",
       dataPoints: `${datasetMeta.rows.toLocaleString()} Transactions`,
-      data: DEMO_CUSTOMER_DETAILS,
+      data: activeCustomers,
       pdfTitle: "ECOMSIGHT Customer Segmentation & RFM Report"
     },
     {
@@ -118,8 +123,8 @@ export const Reports: React.FC = () => {
       icon: Package,
       color: "text-amber-600 bg-amber-50 border border-amber-200",
       badge: "Safety Stock",
-      dataPoints: "SKU Catalog Breakdown",
-      data: DEMO_DEMAND_PRODUCTS,
+      dataPoints: `${activeProducts.length} SKU Catalog Items`,
+      data: activeProducts,
       pdfTitle: "ECOMSIGHT Product Inventory & Demand Report"
     },
     {
@@ -129,8 +134,8 @@ export const Reports: React.FC = () => {
       icon: ShoppingBag,
       color: "text-indigo-600 bg-indigo-50 border border-indigo-200",
       badge: "Affinity Mining",
-      dataPoints: "Cross-Sell Bundles",
-      data: DEMO_ASSOCIATION_RULES,
+      dataPoints: `${activeRules.length} Cross-Sell Bundles`,
+      data: activeRules,
       pdfTitle: "ECOMSIGHT Apriori Market Basket Association Rules"
     }
   ];

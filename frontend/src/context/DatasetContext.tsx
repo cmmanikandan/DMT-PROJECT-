@@ -4,13 +4,16 @@ import {
   uploadDatasetFile, 
   triggerDataCleaning, 
   deleteUploadedDataset, 
-  reloadSampleDataset,
-  fetchDatasetPreview,
+  reloadSampleDataset, 
   fetchAvailableDatasets,
-  selectActiveDataset
+  selectActiveDataset,
+  fetchSalesAnalytics,
+  fetchProductDemand,
+  fetchCustomerSegmentation,
+  fetchMarketBasket,
+  fetchInventoryAlerts
 } from '../api/apiClient';
 import { useToast } from './ToastContext';
-import { SAMPLE_DATASET_ROWS } from '../data/sampleDatasetRows';
 import * as XLSX from 'xlsx';
 
 export interface ColumnDetail {
@@ -66,31 +69,45 @@ interface DatasetContextType {
   switchDataset: (name: string) => Promise<boolean>;
   refreshDatasetsList: () => Promise<void>;
   checkStatus: () => Promise<void>;
+  // Global Shared Analytics Cache for 0ms Instant Page Nav
+  salesAnalytics: any | null;
+  productDemandData: any[] | null;
+  customerSegmentsData: any | null;
+  marketBasketData: any[] | null;
+  inventoryAlertsData: any | null;
+  isAnalyticsLoading: boolean;
+  refreshAnalytics: () => Promise<void>;
 }
 
-const DEFAULT_CLEANING_REPORT: CleaningReport = {
-  before: {
-    total_rows: 3481,
-    missing_values: 807,
-    duplicates: 78,
-    invalid_values: 18,
-    outliers: 32
-  },
-  actions_taken: [
-    "Handled 807 missing values using median/mode imputation",
-    "Removed 78 identical duplicate transactions",
-    "Detected and capped 32 statistical volume outliers using IQR (3x)",
-    "Normalized 3,403 records to standard ISO currency and date format",
-    "Encoded categorical variables (Category, Region, Payment_Method)",
-    "Engineered Recency, Frequency, and Monetary (RFM) features"
-  ],
-  after: {
-    total_rows: 3385,
-    missing_values: 0,
-    duplicates: 0,
-    invalid_values: 0,
-    outliers: 3
-  }
+const buildCleaningReportFromMeta = (meta: DatasetMeta): CleaningReport => {
+  const missing = meta.missingValues ?? 0;
+  const duplicates = meta.duplicates ?? 0;
+  const invalid = meta.invalidValues ?? 0;
+  const outliers = meta.outliers ?? 0;
+  const rows = meta.rows ?? 0;
+
+  return {
+    before: {
+      total_rows: rows,
+      missing_values: missing,
+      duplicates: duplicates,
+      invalid_values: invalid,
+      outliers: outliers
+    },
+    actions_taken: [
+      `Audit completed for active dataset: ${meta.filename}`,
+      missing > 0 ? `Detected ${missing} missing attribute values requiring imputation` : "Zero missing attribute cells found in schema",
+      duplicates > 0 ? `Identified ${duplicates} duplicate transactions for deduplication` : "No duplicate records detected",
+      outliers > 0 ? `Statistical IQR scan flagged ${outliers} volume outliers` : "Transactional volumes are within normal IQR variance bounds"
+    ],
+    after: {
+      total_rows: Math.max(0, rows - duplicates),
+      missing_values: 0,
+      duplicates: 0,
+      invalid_values: 0,
+      outliers: 0
+    }
+  };
 };
 
 const DatasetContext = createContext<DatasetContextType | undefined>(undefined);
@@ -103,49 +120,64 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [uploadedRows, setUploadedRows] = useState<any[]>([]);
 
   const [datasetMeta, setDatasetMeta] = useState<DatasetMeta>({
-    filename: "ecommerce_sales_dataset.csv",
+    filename: "festive_diwali_sale_2025.csv",
     uploadDate: new Date().toLocaleDateString('en-GB'),
-    rows: 3481,
+    rows: 2609,
     columns: 13,
-    missingValues: 807,
-    duplicates: 78,
-    invalidValues: 18,
-    outliers: 32,
-    qualityStatus: "Raw / Needs Preprocessing",
-    columns_info: [
-      { name: "Transaction_ID", dtype: "object", missing: 0 },
-      { name: "Date", dtype: "object", missing: 0 },
-      { name: "Customer_ID", dtype: "object", missing: 0 },
-      { name: "Customer_Name", dtype: "object", missing: 0 },
-      { name: "Region", dtype: "object", missing: 308 },
-      { name: "Product_ID", dtype: "object", missing: 0 },
-      { name: "Product_Name", dtype: "object", missing: 0 },
-      { name: "Category", dtype: "object", missing: 0 },
-      { name: "Unit_Price", dtype: "float64", missing: 0 },
-      { name: "Quantity", dtype: "int64", missing: 0 },
-      { name: "Discount_Percent", dtype: "float64", missing: 252 },
-      { name: "Total_Amount", dtype: "float64", missing: 0 },
-      { name: "Payment_Method", dtype: "object", missing: 247 },
-    ]
+    missingValues: 173,
+    duplicates: 0,
+    invalidValues: 0,
+    outliers: 0,
+    qualityStatus: "Raw / Preprocessing Required"
   });
 
-  const [cleaningReport, setCleaningReport] = useState<CleaningReport>(DEFAULT_CLEANING_REPORT);
+  const [cleaningReport, setCleaningReport] = useState<CleaningReport>(() => buildCleaningReportFromMeta(datasetMeta));
   const [dbStatus, setDbStatus] = useState<any>(null);
   const [availableDatasets, setAvailableDatasets] = useState<Array<{ name: string; rows: number; source: string }>>([
-    { name: "ecommerce_sales_dataset.csv", rows: 5138, source: "MySQL (ecomsight_db)" },
     { name: "festive_diwali_sale_2025.csv", rows: 2609, source: "MySQL (ecomsight_db)" },
+    { name: "ecommerce_sales_dataset.csv", rows: 5138, source: "MySQL (ecomsight_db)" },
     { name: "beauty_wellness_lifestyle.csv", rows: 2360, source: "MySQL (ecomsight_db)" },
     { name: "footwear_apparel_sales.csv", rows: 2265, source: "MySQL (ecomsight_db)" },
     { name: "electronics_tech_sales.csv", rows: 2234, source: "MySQL (ecomsight_db)" }
   ]);
 
+  // Global Cached Analytics across all pages
+  const [salesAnalytics, setSalesAnalytics] = useState<any | null>(null);
+  const [productDemandData, setProductDemandData] = useState<any[] | null>(null);
+  const [customerSegmentsData, setCustomerSegmentsData] = useState<any | null>(null);
+  const [marketBasketData, setMarketBasketData] = useState<any[] | null>(null);
+  const [inventoryAlertsData, setInventoryAlertsData] = useState<any | null>(null);
+  const [isAnalyticsLoading, setIsAnalyticsLoading] = useState<boolean>(false);
+
+  // Eager prefetcher: loads analytics once for active dataset so page switching has 0 latency
+  const loadActiveAnalytics = async () => {
+    try {
+      setIsAnalyticsLoading(true);
+      const [sales, demand, segments, basket, inventory] = await Promise.all([
+        fetchSalesAnalytics("monthly").catch(() => null),
+        fetchProductDemand().catch(() => null),
+        fetchCustomerSegmentation(4).catch(() => null),
+        fetchMarketBasket(0.02, 0.3).catch(() => null),
+        fetchInventoryAlerts(7).catch(() => null)
+      ]);
+
+      if (sales && sales.trend) setSalesAnalytics(sales);
+      if (Array.isArray(demand) && demand.length > 0) setProductDemandData(demand);
+      if (segments && (segments.summary || segments.clusters)) setCustomerSegmentsData(segments);
+      if (basket && basket.rules) setMarketBasketData(basket.rules);
+      if (inventory && inventory.kpis) setInventoryAlertsData(inventory);
+    } catch (e) {
+      console.warn("Analytics prefetch:", e);
+    } finally {
+      setIsAnalyticsLoading(false);
+    }
+  };
+
   const refreshDatasetsList = async () => {
     try {
-      if (backendOnline) {
-        const data = await fetchAvailableDatasets();
-        if (data.status === 'success' && data.datasets) {
-          setAvailableDatasets(data.datasets);
-        }
+      const data = await fetchAvailableDatasets();
+      if (data.status === 'success' && data.datasets) {
+        setAvailableDatasets(data.datasets);
       }
     } catch (e) {
       // Keep defaults
@@ -166,10 +198,10 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const meta = health.details.dataset_meta;
         if (meta) {
           setHasDataset(true);
-          setDatasetMeta({
-            filename: meta.filename || "ecommerce_sales_dataset.csv",
+          const normalizedMeta: DatasetMeta = {
+            filename: meta.filename || "festive_diwali_sale_2025.csv",
             uploadDate: meta.upload_date || new Date().toLocaleDateString('en-GB'),
-            rows: meta.rows || 5138,
+            rows: meta.rows || 2609,
             columns: meta.columns || 13,
             missingValues: meta.missing_values ?? 0,
             duplicates: meta.duplicates ?? 0,
@@ -177,13 +209,16 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
             outliers: meta.outliers ?? 0,
             qualityStatus: meta.quality_status || "Ready",
             columns_info: meta.columns_info
-          });
+          };
+          setDatasetMeta(normalizedMeta);
+          setCleaningReport(buildCleaningReportFromMeta(normalizedMeta));
+          const isAlreadyClean = (normalizedMeta.missingValues === 0 && normalizedMeta.duplicates === 0) || (normalizedMeta.qualityStatus && normalizedMeta.qualityStatus.includes("Cleaned"));
+          setIsCleaned(Boolean(isAlreadyClean));
         }
       } else if (health.details?.dataset_active === false) {
-        // Backend confirms dataset was deleted
         setHasDataset(false);
         setUploadedRows([]);
-        setDatasetMeta({
+        const emptyMeta: DatasetMeta = {
           filename: "No active dataset",
           uploadDate: "-",
           rows: 0,
@@ -193,14 +228,19 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
           invalidValues: 0,
           outliers: 0,
           qualityStatus: "Empty"
-        });
+        };
+        setDatasetMeta(emptyMeta);
+        setCleaningReport(buildCleaningReportFromMeta(emptyMeta));
       }
     }
   };
 
+  // Initial load
   useEffect(() => {
-    checkStatus();
-    const interval = setInterval(checkStatus, 4000);
+    checkStatus().then(() => {
+      loadActiveAnalytics();
+    });
+    const interval = setInterval(checkStatus, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -212,15 +252,30 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const result = await uploadDatasetFile(file);
         if (result.status === 'success') {
           setHasDataset(true);
-          setDatasetMeta(result.metadata);
+          const meta = result.metadata;
+          const normalizedMeta: DatasetMeta = {
+            filename: meta.filename,
+            uploadDate: meta.upload_date || new Date().toLocaleDateString('en-GB'),
+            rows: meta.rows,
+            columns: meta.columns,
+            missingValues: meta.missing_values ?? 0,
+            duplicates: meta.duplicates ?? 0,
+            invalidValues: meta.invalid_values ?? 0,
+            outliers: meta.outliers ?? 0,
+            qualityStatus: meta.quality_status || "Ready",
+            columns_info: meta.columns_info
+          };
+          setDatasetMeta(normalizedMeta);
+          setCleaningReport(buildCleaningReportFromMeta(normalizedMeta));
           setUploadedRows(result.preview || []);
           setIsCleaned(false);
-          showToast(`Successfully ingested ${file.name} (${result.metadata.rows.toLocaleString()} rows)!`, 'success');
+          await loadActiveAnalytics();
+          showToast(`Successfully ingested ${file.name} (${normalizedMeta.rows.toLocaleString()} rows)!`, 'success');
           return true;
         }
       }
 
-      // Standalone client-side file reading with SheetJS
+      // Client-side fallback
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
@@ -237,18 +292,20 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
             });
           });
 
-          setHasDataset(true);
-          setDatasetMeta({
+          const normalizedMeta: DatasetMeta = {
             filename: file.name,
             uploadDate: new Date().toLocaleDateString('en-GB'),
             rows: rows.length,
             columns: colCount,
             missingValues: missingCount,
-            duplicates: 78,
-            invalidValues: 18,
-            outliers: 32,
+            duplicates: 0,
+            invalidValues: 0,
+            outliers: 0,
             qualityStatus: missingCount > 0 ? "Raw / Needs Preprocessing" : "Verified"
-          });
+          };
+          setHasDataset(true);
+          setDatasetMeta(normalizedMeta);
+          setCleaningReport(buildCleaningReportFromMeta(normalizedMeta));
           setUploadedRows(rows.slice(0, 50));
           setIsCleaned(false);
           showToast(`Ingested ${rows.length.toLocaleString()} rows from ${file.name}`, 'success');
@@ -272,7 +329,7 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setHasDataset(false);
       setUploadedRows([]);
       setIsCleaned(false);
-      setDatasetMeta({
+      const emptyMeta: DatasetMeta = {
         filename: "No active dataset",
         uploadDate: "-",
         rows: 0,
@@ -282,7 +339,14 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         invalidValues: 0,
         outliers: 0,
         qualityStatus: "Empty"
-      });
+      };
+      setDatasetMeta(emptyMeta);
+      setCleaningReport(buildCleaningReportFromMeta(emptyMeta));
+      setSalesAnalytics(null);
+      setProductDemandData(null);
+      setCustomerSegmentsData(null);
+      setMarketBasketData(null);
+      setInventoryAlertsData(null);
       showToast('Active dataset deleted successfully.', 'info');
     } catch (err: any) {
       showToast(`Delete failed: ${err.message}`, 'error');
@@ -295,28 +359,28 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const res = await reloadSampleDataset();
         if (res.status === 'success') {
           setHasDataset(true);
-          setDatasetMeta(res.metadata);
+          const meta = res.metadata;
+          const normalizedMeta: DatasetMeta = {
+            filename: meta.filename,
+            uploadDate: meta.upload_date || new Date().toLocaleDateString('en-GB'),
+            rows: meta.rows,
+            columns: meta.columns,
+            missingValues: meta.missing_values ?? 0,
+            duplicates: meta.duplicates ?? 0,
+            invalidValues: meta.invalid_values ?? 0,
+            outliers: meta.outliers ?? 0,
+            qualityStatus: meta.quality_status || "Ready",
+            columns_info: meta.columns_info
+          };
+          setDatasetMeta(normalizedMeta);
+          setCleaningReport(buildCleaningReportFromMeta(normalizedMeta));
           setUploadedRows(res.preview || []);
           setIsCleaned(false);
-          showToast('Reloaded DMT Sample E-Commerce Dataset (3,481 rows)!', 'success');
+          await loadActiveAnalytics();
+          showToast(`Reloaded Primary Dataset (${normalizedMeta.rows.toLocaleString()} rows)!`, 'success');
           return;
         }
       }
-
-      setHasDataset(true);
-      setIsCleaned(false);
-      setDatasetMeta({
-        filename: "ecommerce_sales_dataset.csv",
-        uploadDate: new Date().toLocaleDateString('en-GB'),
-        rows: 3481,
-        columns: 13,
-        missingValues: 807,
-        duplicates: 78,
-        invalidValues: 18,
-        outliers: 32,
-        qualityStatus: "Raw / Needs Preprocessing"
-      });
-      showToast('Loaded DMT E-Commerce Dataset (3,481 rows)!', 'success');
     } catch (err: any) {
       showToast(`Load failed: ${err.message}`, 'error');
     }
@@ -335,30 +399,26 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
             missingValues: 0,
             duplicates: 0,
             invalidValues: 0,
-            outliers: 3,
+            outliers: 0,
             qualityStatus: "Cleaned & Verified"
           }));
           setIsCleaned(true);
+          await loadActiveAnalytics();
           showToast('Data cleaning complete: missing values imputed, duplicates removed!', 'success');
           return true;
         }
       }
 
-      setTimeout(() => {
-        setDatasetMeta((prev: DatasetMeta) => ({
-          ...prev,
-          rows: 3385,
-          missingValues: 0,
-          duplicates: 0,
-          invalidValues: 0,
-          outliers: 3,
-          qualityStatus: "Cleaned & Verified"
-        }));
-        setCleaningReport(DEFAULT_CLEANING_REPORT);
-        setIsCleaned(true);
-        showToast('Cleaned dataset: 807 missing and 78 duplicate records resolved.', 'success');
-      }, 700);
-
+      setDatasetMeta((prev: DatasetMeta) => ({
+        ...prev,
+        missingValues: 0,
+        duplicates: 0,
+        invalidValues: 0,
+        outliers: 0,
+        qualityStatus: "Cleaned & Verified"
+      }));
+      setIsCleaned(true);
+      showToast('Dataset successfully cleaned and verified.', 'success');
       return true;
     } catch (err: any) {
       showToast(`Cleaning error: ${err.message}`, 'error');
@@ -373,14 +433,30 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const res = await selectActiveDataset(name);
         if (res.status === 'success') {
           setHasDataset(true);
-          setDatasetMeta(res.metadata);
+          const meta = res.metadata;
+          const normalizedMeta: DatasetMeta = {
+            filename: meta.filename,
+            uploadDate: meta.upload_date || new Date().toLocaleDateString('en-GB'),
+            rows: meta.rows,
+            columns: meta.columns,
+            missingValues: meta.missing_values ?? 0,
+            duplicates: meta.duplicates ?? 0,
+            invalidValues: meta.invalid_values ?? 0,
+            outliers: meta.outliers ?? 0,
+            qualityStatus: meta.quality_status || "Ready",
+            columns_info: meta.columns_info
+          };
+          setDatasetMeta(normalizedMeta);
+          setCleaningReport(buildCleaningReportFromMeta(normalizedMeta));
           setUploadedRows(res.preview || []);
-          setIsCleaned(false);
-          showToast(`Active dataset switched to "${name}" (${res.metadata.rows.toLocaleString()} records)!`, 'success');
+          const isAlreadyClean = (normalizedMeta.missingValues === 0 && normalizedMeta.duplicates === 0) || (normalizedMeta.qualityStatus && normalizedMeta.qualityStatus.includes("Cleaned"));
+          setIsCleaned(Boolean(isAlreadyClean));
+          // Load analytics eagerly for the newly activated dataset
+          await loadActiveAnalytics();
+          showToast(`Active dataset switched to "${name}" (${normalizedMeta.rows.toLocaleString()} records)!`, 'success');
           return true;
         }
       }
-      showToast(`Selected dataset "${name}"`, 'success');
       return true;
     } catch (err: any) {
       showToast(`Failed to switch dataset: ${err.message}`, 'error');
@@ -405,7 +481,14 @@ export const DatasetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         loadSampleDataset,
         switchDataset,
         refreshDatasetsList,
-        checkStatus
+        checkStatus,
+        salesAnalytics,
+        productDemandData,
+        customerSegmentsData,
+        marketBasketData,
+        inventoryAlertsData,
+        isAnalyticsLoading,
+        refreshAnalytics: loadActiveAnalytics
       }}
     >
       {children}

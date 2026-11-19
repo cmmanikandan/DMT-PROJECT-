@@ -20,7 +20,6 @@ import { ProductPerformance } from './pages/ProductPerformance';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { InventoryAlerts } from './pages/InventoryAlerts';
-import { AnomalyDetection } from './pages/AnomalyDetection';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -114,14 +113,6 @@ export const AppContent: React.FC = () => {
             element={
               <ErrorBoundary fallbackTitle="Inventory Alerts Error">
                 <InventoryAlerts />
-              </ErrorBoundary>
-            }
-          />
-          <Route
-            path="anomalies"
-            element={
-              <ErrorBoundary fallbackTitle="Anomaly Detection Error">
-                <AnomalyDetection />
               </ErrorBoundary>
             }
           />

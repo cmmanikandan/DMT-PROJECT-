@@ -36,17 +36,28 @@ type ViewMode = 'demand' | 'performance';
 type FilterTab = 'Best Selling' | 'Lowest Selling' | 'Highest Revenue' | 'Fast Growing';
 
 export const ProductDemand: React.FC = () => {
-  const { backendOnline, hasDataset, datasetMeta } = useDataset();
-  const [demandData, setDemandData] = useState<any[]>(DEMO_DEMAND_PRODUCTS);
+  const { backendOnline, hasDataset, datasetMeta, productDemandData } = useDataset();
+  const [demandData, setDemandData] = useState<any[]>(() => 
+    productDemandData && productDemandData.length > 0 ? productDemandData : DEMO_DEMAND_PRODUCTS
+  );
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('demand');
   const [performanceFilter, setPerformanceFilter] = useState<FilterTab>('Highest Revenue');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (productDemandData && productDemandData.length > 0) {
+      setDemandData(productDemandData);
+    }
+  }, [productDemandData]);
+
+  useEffect(() => {
     let isMounted = true;
     if (backendOnline && hasDataset) {
-      setIsLoading(true);
+      // If we don't have cached data yet, show loading spinner while fetching
+      if (!productDemandData || productDemandData.length === 0) {
+        setIsLoading(true);
+      }
       fetchProductDemand()
         .then((data) => {
           if (isMounted && Array.isArray(data) && data.length > 0) {

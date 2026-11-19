@@ -60,13 +60,15 @@ export const SalesPrediction: React.FC = () => {
   // Automatically compute predictions live on page load if dataset is active
   useEffect(() => {
     if (backendOnline && hasDataset) {
-      handlePredict();
+      handlePredict(false);
     }
   }, [backendOnline, hasDataset]);
 
-  const handlePredict = async () => {
+  const handlePredict = async (notify: boolean = true) => {
     setIsPredicting(true);
-    showToast(`Fitting ML models for ${predictionType} (${period})...`, 'info');
+    if (notify) {
+      showToast(`Fitting ML models for ${predictionType} (${period})...`, 'info');
+    }
 
     if (backendOnline) {
       try {
@@ -77,9 +79,13 @@ export const SalesPrediction: React.FC = () => {
           period
         });
         setResults(liveData);
-        showToast('ML prediction calculated from active dataset!', 'success');
+        if (notify) {
+          showToast('ML prediction calculated from active dataset!', 'success');
+        }
       } catch (err: any) {
-        showToast(`Backend ML error: ${err.message}. Showing simulation.`, 'error');
+        if (notify) {
+          showToast(`Backend ML error: ${err.message}. Showing simulation.`, 'error');
+        }
       } finally {
         setIsPredicting(false);
       }
@@ -254,7 +260,7 @@ export const SalesPrediction: React.FC = () => {
 
           <div className="pt-4 border-t border-surface-border mt-4">
             <button
-              onClick={handlePredict}
+              onClick={() => handlePredict(true)}
               disabled={isPredicting}
               className="w-full py-2.5 px-4 bg-primary hover:bg-primary-hover text-white text-[13px] font-semibold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
             >
